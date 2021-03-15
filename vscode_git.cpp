@@ -18,3 +18,7 @@ c.删除远程分支 git push origin --delete <BranchName>
 
 6.将本地的文件连接到远程的某个仓库
 a.git remote add origin https://github.com/xuanhun/vscode.git
+
+7.修改本地仓库地址
+git remote -v
+git remote set-url origin ~
