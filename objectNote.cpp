@@ -1671,6 +1671,9 @@ window是 先查看log，选中要恢复的版本，revert to this revision，�
 将这个目录与远程的仓库建立连接 git remote add origin git@github.com:yourname/仓库名.git,如果是新的仓库名，要先登录github创建仓库
 git push -u origin master  提交到仓库，-u是全部提交，之后可不用加
 
+
+
+
 asio:
 1.boost::asio::io_service ioserver; 会生成一个服务的链表，之后生成的所有服务对象，都加入这个链表中。和一个服务能管理这个链表的对象，
 第一个生成的服务是impl，调用io_service的接口，最终都是交给impl服务处理。
