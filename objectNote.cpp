@@ -1081,7 +1081,16 @@ delete：删除断点、监视点和捕获点
 6.调用脚本调试
 gdb attach 123 -x 脚本(脚本后缀无所谓)
 例：
-break map_war.cpp.h:466                                                                                                                                                                
+#if 0
+b escort_system.cpp.h:111  if m._pid == 57671899
+commands 1
+p m._pid  //p 可以直接打印变量，prinf是像c一样使用 eg:printf "%s\n" "none"
+c
+end
+c
+
+#end if
+
  9.栈帧：在函数调用期间，与调用关联的运行时信息存储在栈帧中，包括局部变量的值，形参，调用该函数的位置，当函数退出时，
  这个帧被弹出栈，且被释放
  frame 当前栈帧，up, down切换，backtrace显示当前存在的所有帧集合  bt=backtrace
