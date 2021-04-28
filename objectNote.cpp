@@ -756,6 +756,9 @@ mp.upper_bound[4].first == 5  //找出第一个 > 3的
 mp.lower_bound[5].first == 5
 mp.upper_bound[5].first == 5
 
+3 6  7
+
+
 351
 epoll事件有两种模型：
 edge triggered (et) 边缘触发只有数据到来,才触发,不管缓存区中是否还有数据。
@@ -985,9 +988,81 @@ iterator find (const key_type& k); //返回的是临时变量，不能用&
 const_iterator find (const key_type& k) const;//可以用引用
 想要用iterator修改val时，只能用上面那个，且val是指针时才能修改
 
+409 operator()
+1.直接使用对象时调用，eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
+
+410 寻路.广度优先搜索
+0.一定能找到最快的路线
+1.类似以起点为中心点向外辐射,设置每个点的父节点和到起点的距离，当找到目标点时，通过目标点的父节点找回起点，就能找到最优路线
+2.步骤：
+a.一开始以起点为中心，取相邻的点设置成节点放入容器中。
+b.从容器取出一个点重复a步骤，每次取出的点都是离起点最近的，所以距离和父节点不再变化，所以可以设置成close，表示这个节点
+可以不用再检测。
+```
+std::vector<int> WStarKW::find()
+{
+  std::vector<int> paths;
+  if (!isValidParam())
+  {
+    return paths;
+  }
+  else
+  {
+    _maps[publicStart] = Node(publicStart);//起点节点
+
+    //重设周围最多可以行走的物件格
+    std::vector<int> nearby_nodes;
+    nearby_nodes.reserve(8);
+
+    _openList.insert(&_maps[publicStart]);//所有实体的节点都是从map中生成
+    (*_openList.begin())->state = IN_OPENLIST;//设置到open列表
+
+    while (!_openList.empty())
+    {
+      Node *current_node = *_openList.begin();
+      _openList.erase(_openList.begin());
+      current_node->state = IN_CLOSELIST;
+
+      //寻找附近的节点
+      findNearlyPos(current_node->pos, nearby_nodes);
+
+      for (unsigned index = 0; index < nearby_nodes.size(); index++)
+      {
+        Node *new_node = NULL;
+        const int& index_pos = nearby_nodes[index];
+        if (findInOpenList(index_pos, new_node))//如果新找到的下一个路径, 已经是在open列中
+        {
+          handleInOpenNode(current_node, new_node);//看大小是否需要重新连接当前节点的父节点
+        }
+        else
+        {
+          //不会有闭合列表和开列表的坐标点//所以到这步骤位置, 必定是没有创建实例的地图点
+          new_node = &(_maps[index_pos] = Node(index_pos));
+          handleNotInOpenNode(current_node, new_node, publicEnd);
+
+          if (index_pos == publicEnd)
+          {
+            while (new_node->parent)
+            {
+              paths.push_back(new_node->pos);
+              new_node = new_node->parent;
+            }
+            std::reverse(paths.begin(), paths.end());
+            goto __end__;
+          }
+        }
+      }
+    }
+  }
+
+__end__:
+  clear();
+  return paths;
+}
+```
+
+410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
 jilu
-1.array 中的数据转成obj
-2.db count用法
 
 
 
@@ -1276,15 +1351,11 @@ db.collection.update(
    <update>,   update的对象和更新的操作符（如$,$inc...）等，也可以理解为sql set后面的
    {（下列都是可选参数）
      upsert: <boolean>,  如果不存在update的记录，是否插入objnew,true为插入，默认是false，不插入。
-     upsert是否插入是根据这个文档来判断的，不是键，下列的$set才是判是判断键是否存在，不存在就插入新键值
+     upsert是否插入是根据这个文档来判断的，不是键，即collection存在就写入
      multi: <boolean>,   默认是false,只更新找到的第一条记录，true时,将按条件查出来多条记录全部更新。
      writeconcern: <document>  抛出异常的级别
    }
 )
-$set：指定键的值，若键不存在，则创建, 好像query找的到，就必须加$set，表示要更新哪个数据，如果query找不到，则会插入新的数据
-eg：更新标题(title)，修改多条相同的文档    $set操作符替换掉指定字段的值
->db.col.update({'title':'mongodb 教程'},{$set:{'title':'mongodb'}},{multi:true})    $inc是对某个字体的值进行加减，所以值只能填正负数据
-                    <query>                <update>                  可选参数
 
 15.查询文档：
 db.collection.find(query, projection)
@@ -3356,5 +3427,3 @@ if (this_one_thing > this_other_thing &&
 
 
 
-/data/game-env/mongo-cxx-driver-legacy-1.1.3/src/mongo/util
-/data/game-env/mongo-cxx-driver-legacy-1.1.3/src/mongo/bson
