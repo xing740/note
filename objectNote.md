@@ -390,3 +390,158 @@ print "相加后的值为 : ", sum( 11, 20 )
 
 ### python zha
 1. os.listdir()返回值不能保存
+
+#### GDB
+1. -g,主编译器将符号表（对应程序的变量和代码行的内存地址列表)保存在生成的可执行文件中，这样才能在调试过程中引用源代码中的变量名和行号,-o必须写在后面.
+2. gdb实际上是使用机器语言指针工作。不能简单的理解为是一行一行的执行代码。例：声明i确实会生成机器码，但是gdb发现这种代码对调用目的来
+说没有用处，所以在这行设置断点不会停。被优化后的代码也会出来断点的位置不是我们想要的的结果.
+
+### step 进入函数
+没有进函数的原因是gdb不会在不具有调用信息的代码内停止
+```
+printf()
+```
+#### finish
+恢复gdb运行，直到恰好在函数返回之后为止.
+
+### until
+1. 执行完循环直到跳出循环的第一行代码处暂停。
+2. 如果执行until导致回跳到循环顶部，再执行until就可离开当前循环。
+3. 执行到某行或某函数入口.
+```
+until 13, until bed.c:12, until swap, until bed.c:swap
+```
+
+### 程序运行参数。
+set args=x 可指定运行时参数。
+show args 命令可以查看设置好的运行参数。
+
+### break
+1. tbreak 临时断点
+2. 条件断点
+```
+condition 2 num_y==2  //断点已存在时设置条件，不加if
+break 20 if num_y==2  新创建的断点
+condition 2 //删除断点条件
+break test.c:myfunc if !check_sanity(i) //条件中调用函数
+```
+3. commands
+```
+//简单模式
+commands 2  给断点1设命令列表
+silent  加这个是为了打印简洁
+printf "main was pass %d.\n", n    printf 就相当于平时用的，只是去掉了括号
+continut   加这个相当于按了c键
+end   每个命令需以end的结束
+
+//if 的使用
+  commands 2 //if的使用同c，printf只是去掉括号，可用gdb的print
+  p tmp->val
+  if(tmp->left != 1)
+  p tmp->ledf->val
+  else
+  printf "%s\n" "none"
+  end
+  if(tmp->right != 1)
+  p tmp->right->val
+  else
+  printf "%s\n", "none"
+  end
+ end
+
+ //调用其它函数
+ commands 1
+ printf "xxxxx"
+ call printftree(root) 
+ end
+
+ //取消 commands
+ commands 2  .... end
+```
+4. delete 3 3 4(删除2，3，4位置的断点)
+delete：删除断点、监视点和捕获点
+禁用断点：disable 数字列表
+启用断点：enable 数字列表
+
+5. 在函数入口处设置断点
+若有函数 void main(); 设置断点 break main
+存在重载函数或同名静态函数：break bed.c:main
+
+### watch
+1. 监视点：即是断点，也可打印变量值，用于监视某个变量什么时候发生变化，在哪变化。watch z , watch (z > 29). 对全局变量和函数之间连续传递的局部变量来说特别有用。
+2. 使用watch时步骤如下：
+1. 使用break在要观察的变量所在处设置断点：
+2. 使用run执行，直到断点；
+3. 使用watch设置观察点；
+4. 使用continue观察设置的观察点是否有变化。
+
+### 调用脚本调试
+```
+//gdb attach 124 -x 脚本(脚本后缀无所谓)
+//下列为文件内容
+b escort_system.cpp.h:112  if m._pid == 57671899
+commands 2
+p m._pid  //p 可以直接打印变量，prinf是像c一样使用 eg:printf "%s\n" "none"
+c
+end
+c
+```
+### 栈帧
+1. frame 当前栈帧，up, down切换，backtrace显示当前存在的所有帧集合bt=backtrace
+2. info locals:当前栈帧中的所有局部变量的值列表
+3. info args:显示当前函数的传入参数
+
+### continue
+```
+continue 3 //忽略接下来的3个断点
+```
+
+### print
+```
+//打印结构体
+p *tmp
+
+//打印数组
+int a[26];
+p *a@25  
+
+//打印给定类型的指针
+p (int[25])*a 
+p *((playerItem*)0x7fad322ccab0)
+
+//有作用域
+p *node::root //和.cpp函数的实现一样，类型开头，作用域符::
+```
+
+### ptype
+1. 查看类型
+
+### set
+```
+//设置变量的值
+set x = 13  
+//设置数组的值
+若有int arr[6],则可set arr={1,1,2,2}
+//设置新变量接收值
+set $q = p 必须加$,$q称为方便变量）
+//遍历数组
+set $i=1, p w[$i++]
+//不限制打印字符串的长度 
+set print element 0   
+```
+### log
+```
+set logging file <filename> //设定logging output 的文件
+set logging on //打开记录功能
+set logging off //关闭记录功能
+没有指明文件，会自动生成gdb.txt
+```
+#### gdb zha
+1. 很多调用动作需先执行到断点位置才能设置，因为在进行这个位置的函数之前，函数内的变量还不存在
+2. new thread xxx (lwp xxx) ：gdb提示有线程创建
+3. ni 和si 是执行机器语句，一个函数可能解析成多个机器语句。
+4. disas看反汇编， i r 看寄存器
+5. g++ -e xx.cpp -o xx.i   预处理
+6. 打印所有线程堆栈:thread apply all bt,用f编号跳入指定的堆栈 
+7. return 不执行断点以下的代码，并返回
+8. call function() 如果该函数返回值为void，则调用后不会有内容

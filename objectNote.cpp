@@ -850,6 +850,72 @@ inline是将函数体替换调用处。static inline是将函数的汇编代码�
 计算结果。
 例：auto f = async(fab, 6); fab是函数 int fab(int n)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 375.C++标准规定，当一个指针类型的数值是0时，认为这个指针是空的。在初始化列表中，可以将指针值置0表示将指针初始化为nullPtr
 
 375.ipp 用于将模板的声明与实现分开，因为模板是在预编译时进行处理的，所以不能放到.cpp文件里面，所以就定义了.ipp文件。 
@@ -1062,6 +1128,10 @@ __end__:
 ```
 
 410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
+
+411.段错误：通常由于数组索引超出了边界，或者采用了错误的指针值。 系统分给程序的有权限的内存的单位和程序访问内存的单位不同，可能会出现多分，当程序访问超出自己申请的内存大小时，就没有段错误， 所以，不能根据是没有段错误来判断程序对内存的操作正确 访问不存在的物理地址是总线程错误，是因为提供给处理器的是无效地址，与发生段错误的原因不同
+
+
 jilu
 
 
@@ -1111,184 +1181,6 @@ class tss_data
 boost::thread_specific_ptr<tss_data> type_tss_data_ptr;
 每个线程都可调用type_tss_data_ptr,但都是不一样的tss_data对象，每个线程第一次使用前都会new一个，可
 看成每个线程使用前，都会生成一个本地的储存空间。这个type_tss_data_ptr是全局的
-
-gdb-----------------------------------------------------------------------------------------------------------
-
-2.-g为了调试用的,加个-g 是为了gdb 用，不然gdb用不到,-o必须写在后面（-g,主编译器将符号表（对应程序的变量和代码行的内存地址
-列表）保存在生成的可执行文件中，这样才能在调会话过程中引用源代码中的变量名和行号
-
-gdb实际上是使用机器语言指针工作。不能简单的理解为是一行一行的执行代码。例：声明i确实会生成机器码，但是gdb发现这种代码对调用目的来
-说没有用处，所以在这行设置断点不会停。被优化后的代码也会出来断点的位置不是我们想要的的结果
-
-4.c用gcc, c++用g++
-
- 4.step没有进函数的原因是gdb不会在不具有调用信息的代码内停止，例：printf()
-
- 4.finish:恢复gdb运行，直到恰好在函数返回之后为止。用此查看函数返回值
-
- 4.until:执行完循环直到跳出循环的第一行代码处暂停。实际是执行程序，直到到达的内存地址比当前内存地址更高的机器指令，而
- 不是直到源代码中的一个更大的行号。
- 如果执行until导致回跳到循环顶部，再执行until就可离开当前循环。
- 执行到某行或某函数入口：例：until 13, until bed.c:12, until swap, until bed.c:swap
-
-
-5.程序运行参数。
-  set args=x 可指定运行时参数。
-  show args 命令可以查看设置好的运行参数。
-
-
- 8.c x a 进入tui模式
-
-9.断点
- tbreak 临时断点
-
- 监视点：即是断点，也可打印变量值，用于监视某个变量什么时候发生变化，在哪变化。watch z , watch (z > 29). 对全局变量和函数之间连续传递
- 的局部变量来说特别有用。
- watch (i | j > 13) && i > 24 && stlen(name) > 6   加了三个条件
-
- 即，在使用watch时步骤如下：
-2. 使用break在要观察的变量所在处设置断点：
-3. 使用run执行，直到断点；
-4. 使用watch设置观察点；
-5. 使用continue观察设置的观察点是否有变化。
-
- 条件断点：加的表达，需要能返回bool，可用逻辑、运行符、位运行，可看成是c语言if对条件中的
- 2.break 30
- condition 2 num_y==2  (假设打的断点是编号1,注意不要加if)  cond=condition,   已存在的断点
- 删除条件：condition 2,即设空
- 3. break 20 if num_y==2  新创建的断点
- 4.用自己的函数：break test.c:myfunc if !check_sanity(i)
-
- 5.断点命令列表：使用com mands命令设置
- 例：break main
-  commands 2  给断点1设命令列表
-  silent  加这个是为了打印简洁
-  printf "main was pass %d.\n", n    printf 就相当于平时用的，只是去掉了括号
-  continut   加这个相当于按了c键
-  end   每个命令需以end的结束
- 例：3
-  commands 2     if的使用同c，printf只是去掉括号，可用gdb的print
-  p tmp->val
-  if(tmp->left != 1)
-  p tmp->ledf->val
-  else
-  printf "%s\n" "none"
-  end
-  if(tmp->right != 1)
-  p tmp->right->val
-  else
-  printf "%s\n", "none"
-  end
- end
- 例 4 commands和call（调用自己的函数)结合使用
- commands
- printf "xxxxx"
- call printftree(root) 
- end
-
- 取消commands   置空  commends2 ..... end
-
-delete 3 3 4(删除2，3，4位置的断点)
-delete：删除断点、监视点和捕获点
-禁用断点：disable 数字列表 ， 不加参数禁用所有列表   dis=disable
-启用断点：enable 数字列表
-
-若有函数 void main();  在函数入口处设置断点 break main
-重载函数或同名静态函数：break 文件名：函数名 例：break bed.c:main
-
-7.调用脚本调试
-gdb attach 124 -x 脚本(脚本后缀无所谓)
-例：
-#if 1
-b escort_system.cpp.h:112  if m._pid == 57671899
-commands 2
-p m._pid  //p 可以直接打印变量，prinf是像c一样使用 eg:printf "%s\n" "none"
-c
-end
-c
-
-#end if
-
- 10.栈帧：在函数调用期间，与调用关联的运行时信息存储在栈帧中，包括局部变量的值，形参，调用该函数的位置，当函数退出时，
- 这个帧被弹出栈，且被释放
- frame 当前栈帧，up, down切换，backtrace显示当前存在的所有帧集合  bt=backtrace
- info locals:当前栈帧中的所有局部变量的值列表
- info args:显示当前函数的传入参数
-
- 11.c c不会中断程序，只是挂起，按c可继续运行
-
- 12.段错误：通常由于数组索引超出了边界，或者或者采用了错误的指针值。
- 系统分给程序的有权限的内存的单位和程序访问内存的单位不同，可能会出现多分，当程序访问超出自己申请的内存大小时，就没有段错误，
- 所以，不能根据是没有段错误来判断程序对内存的操作正确
-
- 访问不存的物理地址是总线程错误，是因为提供给处理器的是无效地址，与发生段错误的原因不同
-
- 13.next等命令时，gdb显示的是将要执行的代码行
-
- 15.continue 3, 忽略接下来的3个断点
-
- 16.很多调用动作需先执行到断点位置才能设置，因为在进行这个位置的函数之前，函数内的变量还不存在
-
- 17.print
- 打印结构体内容: p *tmp  tmp指向一个结构体
- display:使gdb在执行中每次暂停时就输出指定变量值 禁用disable display 2,启用enable display 1 ,删除undisable 1, disp = display
- 打印数组：int a[26],   p *a@25   改变访问地址的类型  p (int[25])*a  若访问的变量需加作用域：p *node::root 和.cpp函数的实现一样，类型开头，作用域+：：
-
- ptype:查看结构或类的代码，例：ptype node
-
- print、displayer可指定格式输出：p/x y（以17进制显示y变量）， c表示字符，s表示字符串，f表示浮点型
-
- 18.设置变量的值
-  set x = 13,  若有int arr[6], 则可set arr={1,1,2,2}
-  设置新变量接收值：set $q = p  （必须加$,$q称为方便变量）
-  不执行源代码的情况下遍历数组：set $i=1, p w[$i++]
-
- 19.如果机器上有多个cpu，则会有多个程序真正的同步运行
-
- 20.new thread xxx (lwp xxx) ：gdb提示有线程创建
-
- 21.调试时，栈帧一般会看新写的代码处的函数，因为老的代码已用这么久，一般不会错，调用的库也不会错，只能是新写的代码访问了什么，而调用老代码或动态库去执行访问，然后就错了   剩下重置次数
-
- 22.ni 和si 是执行机器语句，一个函数可能解析成多个机器语句。
-
- 23. disas看反汇编， i r 看寄存器
-
- 24 mov  1,2   2 复制到 1
-
- 25 内存映射 i proc m （info proc mappings 的简写）核查零是不是有效地址：
-
-26.例 ：g++ -std=gnu++14  x.cpp -g -og -gdwarf-3 -o x
--gdwarf- 3:产生dwarf version2 的格式的调试信息,常用于irixx6上的dbx调试器.gcc会使用dwarf version3的一些特性.
-可 以指定调试信息的等级:在指定的调试格式后面加上等级:
-如: -ggdb3 等,0代表不产生调试信息.在使用-gdwarf-2时因为最早的格式为-gdwarf2会造成混乱,所以要额外使用一个-glevel来指定调试信息的 等级,其他格式选项也可以另外
-指定等级.
-
-27.g++ -e xx.cpp -o xx.i   预处理
-
-29.打印所有线程堆栈
-thread apply all bt
-
-30.log
-(gdb) set logging on    -> 打开记录功能。
-(gdb) set logging off -> 关闭记录功能。   没有指明文件，会自动生成gdb.txt
-
-set logging file <filename> //设定logging output 的文件
-set logging on //开始logging, 所有输出到终端的信息都会写到之前设定的文件中（filename）
-set logging off //停止logging
-
-31. gdb attach pid 后，可直接打断点，不用点run,退出gdb不会使线程退出，detach 取消挂接的进程
-
-32.(gdb) set print element 0   不限制打印字符串的长度 
-
-33.gdb打印不了内嵌容器，例如打印内嵌的map，first对，second不对
-
-34.call function()  如果该函数返回值为void，则调用后不会有内容。该函数内可打断点
-
-35.return 可不执行断点以下的代码，并返回
-
-36. p *((playerItem*)0x7fad322ccab0)
-
-37.bt打印出堆栈后，用f编号跳入指定的堆栈信息
 
 mongodb————————————————————————————————————————————
 * mongo::BSONObj，这个是BSON对象的表示  
