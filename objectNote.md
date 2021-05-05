@@ -337,3 +337,56 @@ ResourceAlloc.reslove(pid, rw, iorw);
 启动调试时，vs从里面找要执行文件的信息，写好launch后，不论选中什么文件，都按照launch的规则执行
 launch是启动程序并进行调试；
 attach是调试某个已启动的线程；
+
+#### python
+### 变量
+1. 变量是没有类型的，类型属于对象,变量是对类型的引用(引用即是对指针的封装，给一个指针于类型，就能寻址到变量的正确范围),所以python中变量可能是不同类型的引用。
+```
+eg1:
+a = [2, 2, 3]
+a = "Rank"
+[2,2,3]和"Runoob" 是对象，[1,2,3] 是 List 类型，"Runoob" 是 String 类型，变量 a 是没有类型，她仅仅是一个对象的引用
+
+eg2:
+a = b = c = 20;三个变量都是对20的引用，所以分配到同一块内在空间
+```
+2. strings, tuples（元组）, 和 numbers 是不可更改的对象，而 list,dict 等则是可以修改的对象。在传参时，不可变类型是传值，可变类型是传引用
+```
+eg:
+a = "abc"
+def modify(a)：
+    a = "cc"
+print(a)
+modify(a)
+print(a)
+//以上结果都为"abc"
+b = [1, 2]
+def modify(b):
+    b[0] = 0
+print(b)
+modify(b)
+print(b)
+//结果为：[1, 2] 和 [0, 2]
+```
+3. 字典的键必须是不可变的，所以可用数字，字符串，元组充当，列表不行。
+
+### pass
+是空语句，为了保持程序结构的完整性。如果定义一个空函数程序会报错，当你没有想好函数的内容是可以用 pass 填充
+
+### lambda
+1. 函数实现是一个表达试，不是语句块,只有一行 
+```
+lambda arg1, arg2, ...：expression
+sum = lambda arg2, arg2: arg1 + arg2;
+print "相加后的值为 : ", sum( 11, 20 )
+```
+2. 绑定函数时，如果类型不符合，可绑定一个lambda，lambda内部调用目标函数
+
+### 导入导出
+1. export 导出，import 引入
+2. import 导入整个文件。
+3. 只引用部分 from...import..
+4. import .. as.. 导入后重命名
+
+### python zha
+1. os.listdir()返回值不能保存
