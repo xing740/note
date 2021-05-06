@@ -533,3 +533,115 @@ set logging off //关闭记录功能
 6. 打印所有线程堆栈:thread apply all bt,用f编号跳入指定的堆栈 
 7. return 不执行断点以下的代码，并返回
 8. call function() 如果该函数返回值为void，则调用后不会有内容
+
+#### mongo
+* mongo::BSONObj，BSON对象的表示  
+* mongo::BSONElement，BSON对象中元素的表示方法   
+* mongo::BSONObjBuilder,构建BSON对象的类  //封装了很多处理bsonobj的方法
+* mongo::BSONObjIterator，BSON对象迭代器  
+* #define BSON_ARRAY(x) ((::mongo::BSONArrayBuilder() << x).arr())
+* #define BSON(x) ((::mongo::BSONObjBuilder(64) << x).obj())
+* addFields 操作对象是空的bsonObj
+
+### insert
+```
+eg:命令操作
+>db.col.insert({title: 'mongodb 教程', 
+    description: 'mongodb 是一个 nosql 数据库',
+    by: '菜鸟教程',
+    url: 'http://www.runoob.com',
+    tags: ['mongodb', 'database', 'nosql'],
+    likes: 101
+})
+
+eg:代码实现
+objCollection insert_objs;
+insert_objs.push_back(BSON("pi" << player_it.first << "id" << card_it.first << "star" << 0 << "poke" << 0));
+thread_shared::GetLocalMongo().InsertMongo(
+    DBN::dbPlayerCard, insert_objs);
+```
+### find
+```
+eg:
+db.tk.player_collection.find({pi:57671698},{"babelfm":1}).pretty()
+
+eg: and 
+db.col.find({key2:value1, key2:value2}).pretty() // 多个key以逗号隔开
+
+eg: or 
+db.col.find({$or:[{key2:value1}, {key2:value2}]}).pretty() //多个key用[]括起
+
+eg:and or 联用
+db.col.find({"likes": {$gt:51}, $or: [{"by": "菜鸟教程"},{"title": "mongodb 教程"}]}).pretty()
+
+eg:模糊查询
+db.col.find({title:/教/}) // 查询 title 包含"教"字的文档：
+db.col.find({title:/^教/}) // 查询 title 字段以"教"字开头的文档：
+db.col.find({title:/教$/}) // 查询 titl e字段以"教"字结尾的文档：
+
+eg:以类型进行查询
+db.col.find({"title" : {$type : 'string'}})
+
+eg:limit/skip
+>db.collection_name.find().limit(number)    // 只显示前number条记录
+>db.collection_name.find().limit(y).skip(x)  //先跳过x条记录，再显示前y条记录
+
+eg:sort 2升序排列，-1降序排列。
+>db.collection_name.find().sort({key:2})
+
+执行顺序: sort > skip > limit
+```
+### 比较符
+{<key>:<value>} 模式
+```
+db.col.find({"by":"菜鸟教程"}).pretty()   
+db.col.find({"likes":{$lt:51}}).pretty()
+db.col.find({"likes":{$lte:51}}).pretty()  //小于或等于
+db.col.find({"likes":{$gt:51}}).pretty()
+db.col.find({"likes":{$gte:51}}).pretty() 
+db.col.find({"likes":{$ne:51}}).pretty() //不等于
+```
+
+### update
+* 不存在会插入新数据，加mulit表示更新全部
+* 数字时要加类型限制
+```
+eg:
+db.tk.player_collection.update({"reset2.mct":{$exists:true}},{$set:{"reset1.mct":NumberInt(0)}},{multi:true})
+
+eg: $unset,删除表中某字段
+update({"userid":10},{"$unset":{"allyreq":true}})
+```
+
+### query
+```
+* 返回的是数组
+eg:
+mongo::query find_query(bson("biz.sm" << bson("$gt" << 1)));
+find_query.sort(bson("biz.sm" << 0 << "biz.smct" << 1 << strplayerid << 1));
+mongo::bsonobj find_val = bson(strplayerid << 1);
+objcollection objs = thread_shared::getlocalmongo().query(
+    dbn::dbplayercollection, 
+    find_query, 
+    101,
+    &find_val
+    );
+```
+### 对数组进行操作
+1. $addToSet 添加元素到数组中,数组已存在该值，将不会加入
+```
+eg: 添加值
+调用save, { $addToSet: { tags: "camera"  } } //向tags数组只加"camera"
+
+eg: 添加多个值
+{ $addToSet: { tags: { $each: [ "camera", "electronics", "accessories" ] } } }
+
+//eg: 判断数组非空
+auto key = BSON("Array.opens.0" << BSON("$exists" << true))
+
+eg:代码
+thread_shared::GetLocalMongo().SaveMongo(DBN::dbPlayerEmail,
+    BSON(strPlayerID << player_it.first),
+    BSON("$set" << BSON("oid" << oid) << "$addToSet" <<
+    BSON("pkg" << BSON("k" << 1 << "v" << email_ptr->toJson().toIndentString()))) //往数组pkg中加对象
+```
