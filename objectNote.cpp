@@ -1043,6 +1043,10 @@ skill:
       private:
       boost::function<void> _clean_function;
       };
+2.利用一个数组保存对象和标记位对应的外部函数
+_subscribers[length] = child;
+_subscribers[length + FULFILLED] = onFulfillment;
+_subscribers[length + REJECTED] = onRejection;
       
 406.重载operator
 int x = 5;调用的是x的构造器，所以 class a < 5时;调用的是类a中的 bool operator < ();

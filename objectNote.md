@@ -35,27 +35,15 @@ var Greeter = (function () {//执行一个匿名函数
 ```
 
 #### promise
-1.能方便的实现链式操作
-2.是一个构造函数，new promise(fun(resolve, reject))，会执行这个构造函数，返回一个promise对象, reslove和reject，这两个函数的实现是promise内部的，至于是否执行，取决于promise是否实现了调用逻辑.传给resolve/reject的参数，最终传给then\catch. promise中不调用reslove，则then不会执行，catch一样。
-3.promise中不是自动异步，需要有异步的实现，异步中可调用resolve或reject
-4.promise.all([]),可传入一些异步，等所以异步完成后，才会执行then，then函数参数接收到的参数是一个数组。
-5.Promise有三个状态，分别为pending、fulfilled和rejected，且只能从pending到fulfilled或者rejected.
-9.then方法中会返回新的promise
+1.能方便的实现链式操作,传入的promise是第一个函数，之后的then传入的函数可理解为回调执行，promise的模式保证了顺序的执行。即第一个then是在传入promise的函数执行后再执行，之后的then都是上一个then传入的回调函数执行完后再执行
+2.是一个构造函数，new promise(fun(resolve, reject)),new之后，会立即执行传入的函数，resolve,和reject的执行时机是我们传入的函数决定的。
+3.resolve和reject主要是改变promise的状态函数返回的value会组then使用。
+4.then方法会创建一个新的promise,并返回，并根据上一个promise的状态，决定是将then传入的回调方法(回调方法会用到上一个promise返回的value)存入立即执行队列还是订阅队队列。立即执行队列并不是立即执行，而是之后没有接着then才会去执行。不论是异步和同步，都保证了then是顺序执行的。
+5.参考<https://juejin.cn/post/6844904144382197774/>
 
 #### async/await
-1.async 一个封装好的 Promise 对象，调用时得到一个 Promise 对象
+1.async 一个封装好的 Promise 对象，调用时得到一个 Promise 对象,遇到await时，会阻塞
 2.如果一个函数声明定义时加了async，调用时，如果需要async的函数执行完后。再执行下面的代码，则调用前要加await 
-```
-async function test () {
-    console.info('in');
-};
-上式相当于将函数内的逻辑加到promise中
-function test () {
-    return new Promise() {
-        console.info('in');
-    }
-}
-```
 
 #### || && 用于对象
 1.【a || b】：a存在返回a，a不存在返回b  
