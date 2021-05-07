@@ -645,3 +645,49 @@ thread_shared::GetLocalMongo().SaveMongo(DBN::dbPlayerEmail,
     BSON("$set" << BSON("oid" << oid) << "$addToSet" <<
     BSON("pkg" << BSON("k" << 1 << "v" << email_ptr->toJson().toIndentString()))) //往数组pkg中加对象
 ```
+
+#### 算法
+### 位运算
+1. 找出数组中缺失的那个数 (将数组模拟成里面都是两两相同的元素)
+```
+Input: [3,0,1]
+Output: 2
+
+public int missingNumber(int[] nums) {
+    int ret = 0;
+    for (int i = 0; i < nums.length; i++) {
+        ret = ret ^ i ^ nums[i];//好比是一个数组中有一个数不重复，只需将所有数进行异或运算.
+    }
+    return ret ^ nums.length;//不可能是最后一个数，所以还要与数组长度进行异或
+} 
+```
+2. 数组中不重复的两个元素(试图分成两个数组，不同的数分别在不同的数组，数组其它数都是两两相同)
+两个不相等的元素在位级表示上必定会有一位存在不同。
+diff &= -diff 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位
+
+public int[] singleNumber(int[] nums) {
+    int diff = 0;
+    for (int num : nums) diff ^= num;
+    diff &= -diff;  // 得到最右一位
+    int[] ret = new int[2];
+    for (int num : nums) {
+        if ((num & diff) == 0) ret[0] ^= num;//好比是第一个数组
+        else ret[1] ^= num;//第二个数组
+    }
+    return ret;
+}
+
+3. 统计从 0 ~ n 每个数的二进制表示中 1 的个数
+```
+//每个i值的1个数都是i&(i-1)对应的值的1的个数再加1
+0    0000    0
+-------------
+1    0001    1
+-------------
+2    0010    1
+3    0011    2
+-------------
+4    0100    1
+5    0101    2
+6    0110    2
+```
