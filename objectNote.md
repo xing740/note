@@ -384,18 +384,22 @@ print "相加后的值为 : ", sum( 11, 20 )
 2. gdb实际上是使用机器语言指针工作。不能简单的理解为是一行一行的执行代码。例：声明i确实会生成机器码，但是gdb发现这种代码对调用目的来
 说没有用处，所以在这行设置断点不会停。被优化后的代码也会出来断点的位置不是我们想要的的结果.
 
+### jump(j)
+* 跳到某行，中间的不执行，可用于跳过判断，如果之后的代码用到的变量是之前跳过的，会报错
+
 ### step 进入函数
 没有进函数的原因是gdb不会在不具有调用信息的代码内停止
 ```
 printf()
 ```
-#### finish
+### finish
 恢复gdb运行，直到恰好在函数返回之后为止.
 
 ### until
 1. 执行完循环直到跳出循环的第一行代码处暂停。
 2. 如果执行until导致回跳到循环顶部，再执行until就可离开当前循环。
 3. 执行到某行或某函数入口.
+4. 想设临时断点时可用
 ```
 until 13, until bed.c:12, until swap, until bed.c:swap
 ```
@@ -484,7 +488,7 @@ c
 continue 3 //忽略接下来的3个断点
 ```
 
-### print
+### print/display
 ```
 //打印结构体
 p *tmp
@@ -500,6 +504,8 @@ p *((playerItem*)0x7fad322ccab0)
 //有作用域
 p *node::root //和.cpp函数的实现一样，类型开头，作用域符::
 ```
+
+* display x时，每次停下就会打印x的值
 
 ### ptype
 1. 查看类型
@@ -690,4 +696,84 @@ public int[] singleNumber(int[] nums) {
 4    0100    1
 5    0101    2
 6    0110    2
+```
+#### 位运算表示状态
+* 利用一个bit位表示一个状态，如果是int类型，就有32个bit，所以可以表示32个状态
+```
+enum EPLAYER_STATE
+{
+    EPST_NONE    = 0x00000000,     // 没有状态
+    EPST_ADDHP  = 0x00000001 ,    // 加血
+    EPST_ADDMP  = 0x00000002,     // 加蓝
+};
+unsigned state = EPST_NONE;
+state |= EPST_ADDHP // 设成加血态，其它位不变，只是那一位变成1
+state |= (EPST_ADDHP | EPST_ADDMP)
+
+if(state & EPST_ADDHP) // 判断某位是否为1，将其它位置成0，同时判断那一位是否为1,结果非0，表示一定有一个bit是1
+
+state &= ~(EPST_ADDHP | EPST_ADDMP) //清除状态，将某位置0，其它位不变
+```
+
+#### noncopyable
+```
+class Matrix {
+public:
+   _T* data;
+   
+   Matrix(){
+      data = new  _T[w*h];
+   }
+   // 析构函数
+   ~Matrix() {
+       delete [] data;
+   }
+}
+Matrix a
+Matrix b = a; //此时就有两个指针指向同一块空间，除非自实现拷备构造函数。
+或者禁用类的拷备构造和赋值构造，继承boost::noncopyable
+基类的构造函数，不论派生类中是否自实现调用,什么继承方式，最终都会调用
+```
+#### skill
+### 根据不同类型，执行不同的逻辑，我可能会在一个函数中实现，逻辑会很多很长，以下是构建类时，就确定了要执行的方法
+```
+class ActivityCCRank {
+public:
+    ActivityCCRank(const int type) : Type(type) {
+        SGM = SINGLETONMUTEXPTRCREATE();
+        if (type == ActivityRankEnum::activity_battle_rank) {
+            _clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list_sp1, this);
+        }
+        else {
+            _clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list, this);
+        }
+    }
+private:
+    boost::function<void> _clean_function;
+};
+```
+### 利用一个数组保存对象和标记位对应的外部函数
+_subscribers[length] = child;
+_subscribers[length + FULFILLED] = onFulfillment;
+_subscribers[length + REJECTED] = onRejection
+
+### 根据类型进行某种操作时，可将类型以模板的形式传入
+```
+eg:
+template <typename Service>
+asio::io_service::service* service_registry::create(
+    asio::io_service& owner)
+{
+  return new Service(owner);
+}
+```
+### 配置一个类是否用过，类中声明一个静态成员变量(可是一个空类)，使用是就把静态变量的地址做为key
+```
+class io_service::id
+  : private noncopyable
+{
+public:
+  /// Constructor.
+  id() {}
+}
 ```

@@ -565,16 +565,21 @@ vector<int> a{1,2,3};
 
 260.静态成员变量要在类外初始化
 例：
+class b{
+
+};
 class aa
 {
 public:
   typedef boost::function<int(playerdataptr, const reqarg&)> actrechargedealfunc;
 private:
   static std::map<int, actrechargedealfunc> kactdealmap;  
+  static b bb;
 };
 此时的kactdealmap只是声明，需要在类外初始化才会分配空间
 std::map<int, actrechargedealfunc> aa::kactdealmap;  这么写还是不对，因为是在类外初始化，actrechargedealfunc是在类内的类型，所以也要加命名空间
 std::map<int, kactdealmap::actrechargedealfunc> aa::kactdealmap;
+b aa::bb; //静态成员类的初始化
 
 261.s已tatic_cast<type>(expression)类似c的强转，使用这个，就表明这里需要转换，会明显些，static_cast在编译时会进行类型检查，而强制转换不会,
 不要用c的强转
@@ -850,72 +855,6 @@ inline是将函数体替换调用处。static inline是将函数的汇编代码�
 计算结果。
 例：auto f = async(fab, 6); fab是函数 int fab(int n)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 375.C++标准规定，当一个指针类型的数值是0时，认为这个指针是空的。在初始化列表中，可以将指针值置0表示将指针初始化为nullPtr
 
 375.ipp 用于将模板的声明与实现分开，因为模板是在预编译时进行处理的，所以不能放到.cpp文件里面，所以就定义了.ipp文件。 
@@ -1043,10 +982,23 @@ skill:
       private:
       boost::function<void> _clean_function;
       };
+
 2.利用一个数组保存对象和标记位对应的外部函数
 _subscribers[length] = child;
 _subscribers[length + FULFILLED] = onFulfillment;
-_subscribers[length + REJECTED] = onRejection;
+_subscribers[length + REJECTED] = onRejection
+
+3.根据类型进行某种操作时，可将类型以模板的形式传入
+
+eg:
+template <typename Service>
+asio::io_service::service* service_registry::create(
+    asio::io_service& owner)
+{
+  return new Service(owner);
+}
+
+} // namespace detail
       
 406.重载operator
 int x = 5;调用的是x的构造器，所以 class a < 5时;调用的是类a中的 bool operator < ();
@@ -1133,9 +1085,7 @@ __end__:
 
 410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
 
-411.段错误：通常由于数组索引超出了边界，或者采用了错误的指针值。 系统分给程序的有权限的内存的单位和程序访问内存的单位不同，可能会出现多分，当程序访问超出自己申请的内存大小时，就没有段错误， 所以，不能根据是没有段错误来判断程序对内存的操作正确 访问不存在的物理地址是总线程错误，是因为提供给处理器的是无效地址，与发生段错误的原因不同
-
-
+411.打印变量，得到变量对应的值，打印指针变量,得指针对应的值，即指针指向的地址。
 jilu
 
 
@@ -1185,6 +1135,12 @@ class tss_data
 boost::thread_specific_ptr<tss_data> type_tss_data_ptr;
 每个线程都可调用type_tss_data_ptr,但都是不一样的tss_data对象，每个线程第一次使用前都会new一个，可
 看成每个线程使用前，都会生成一个本地的储存空间。这个type_tss_data_ptr是全局的
+
+
+连接另一个物理机的mongodb
+2.mongo 10.17.172.221:37057
+3. use admin
+4.db.auth("rwuser","cmgoq8ym3ctl")
 
 绑号：
 2.备份需要的db
@@ -2149,11 +2105,6 @@ int main()
     return 1;
 }
 
-
-
-
-
-
 const std::string c_stateToStrCourier[] = { "收到", "验证可达性", "分配人员", "派送包裹", "获取交货确认", "完成" };
 const std::string c_stateToStrVendor[] = { "收到", "确认库存", "从仓库得到物品", "包装", "联系快递员", "完成" };
 const std::string c_stateToStrOrderTeam[] = { "收到", "确认付款", "联系供应商", "完成" };
@@ -2882,6 +2833,3 @@ if (this_one_thing > this_other_thing &&
 限时点将：摇钱树  
 佳人:点将
 秘境：自定义充值
-
-
-
