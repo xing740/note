@@ -925,7 +925,7 @@ https://blog.csdn.net/qq_34199384/article/details/80469780
 
 397. boost::addressof
 获取基本变量、类变量、函数的地址，避免因代码中实现了&的重载函数而照成错误。
-eg2:对一个指针变量使用addressof，是取的这个变量的地址，不是这个变量上存的地址数据
+eg2:取变量的地址，如果变量进过传参复制，变量地址也会不同。对一个指针变量使用addressof，也是取的这个变量的地址，不是这个变量上存的地址数据
 
 399.
 frpc
@@ -998,7 +998,27 @@ asio::io_service::service* service_registry::create(
   return new Service(owner);
 }
 
-} // namespace detail
+4.如果锁需要在函数中进行操作，可当锁当参数传入
+mutex::scoped_lock lock(mutex_);
+  op_queue_.push(op);//放入任务队列，并唤醒一个线程进行处理
+  wake_one_thread_and_unlock(lock);
+
+5.保证某逻辑一定执行的方法
+struct task_io_service::work_finished_on_block_exit
+{
+  ~work_finished_on_block_exit()
+  {
+    task_io_service_->work_finished();
+  }
+  task_io_service* task_io_service_;
+};
+void func()
+{
+  work_finished_on_block_exit on_exit = { this };
+  (void)on_exit;//因为on_exit没用使用，加void避免警告
+  o->complete(*this);//相这里执行完成，一定调用work_finished函数，但某些错误可能会导致执行不到，
+  //work_finished_on_block_exit的方法保证了，只要不挂，就一样能执行到
+}
       
 406.重载operator
 int x = 5;调用的是x的构造器，所以 class a < 5时;调用的是类a中的 bool operator < ();
@@ -1086,6 +1106,96 @@ __end__:
 410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
 
 411.打印变量，得到变量对应的值，打印指针变量,得指针对应的值，即指针指向的地址。
+
+412.函数指针
+普通函数
+
+int test(int a)
+{
+    return a;
+}
+int main(int argc, const char * argv[])
+{
+    
+    int (*fp)(int a);//返回值,指针名，加*表示是指针，参数
+    fp = test;
+    //使用typedef
+    //typedef int (*fp)(int a);
+    //fp f = test;
+    cout<<fp(2)<<endl;
+    return 0;
+}
+
+成员函数
+成员函数的指针不是像普通指针一样保存确切地址，是保存在类布局中的相对地址
+class Test
+{
+public:
+    void print()
+    {
+        cout << "Test::print" << endl;
+    }
+};
+
+int main(int argc, char *argv[])
+{
+    void (Test::* pFunc)() = &Test::print; //取成员函数地址时必须是这种格式
+    //typedef void (Test::*pFunc)();//typedf的使用
+    //pFunc p = &Test::print;
+    Test test;
+    //通过对象调用成员函数
+    (test.*pFunc)();//注意有*号
+    Test* pTest = &test;
+    //通过指针调用成员函数
+    (pTest->*pFunc)();//Test::print
+
+    //通用对象调用成员函数是为了传入this指针，函数通过this指针调用对象中的成员。如果函数中没用到this，即便对象指针是空，也可调用
+    // Test* ptr == nullptr;
+    //(ptr->*pFunc)();
+    return 0;
+}
+
+静态成员函数
+指针中保存的也是一个相对地址,指针的声明和使用于普通函数一样
+class Test
+{
+public:
+    static void print()
+    {
+        cout << "Test::print" << endl;
+    }
+};
+
+int main(int argc, char *argv[])
+{
+    void (* pFunc)() = &Test::print;
+    cout << pFunc << endl;//1
+    //直接调用
+    pFunc();//Test::print
+    (*pFunc)();//Test::print
+    Test test;
+    //(test.*pFunc)();//error
+    Test* pTest = &test;
+    //(pTest->*pFunc)();//error
+
+    return 0;
+}
+
+413.条件变量
+* 实现了其它线程或进程阻塞和等待其它线程发信号唤醒
+int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程与条件变量与锁建立联系,第一次调用时会阻塞且解锁，被唤醒时自动加锁
+第一个参数是条件变量，第二个参数是线程阻塞的时候要解开的互斥锁。
+使用：线程加锁执行逻辑，发现某些条件不成立，此时可阻塞在一个条件变量，并解锁。其它线程使条件成立后，可通过个发信号的方式唤醒阻塞在条件变量上的线程。发信号的线程
+如果之前有加锁，要先解锁，再发信号
+
+414.void*
+任务指针都能赋值给void*，但因为void*没有类型，所以不能解引用。访问前要经过类型强转，malloc返回的是void*类型
+
+415.战斗
+不管是创建玩家还是npc战斗对象，都是是armyside类，其它的武将也都是army
+位置：[x坐标，y坐标，朝向]
+进攻点不同，也就是出生点不同
+
 jilu
 
 
@@ -1228,23 +1338,20 @@ post
 dispatch
 如果该方法和io服务运行在同一线程，则操作会直接执行，否则行为与post一致。
 
-为什么以及如何保证io服务一直运行:
-即使调用了run执行io服务，在没有异步操作及其回调需要处理的情况下，run方法就会返回，io服务就停止运行了，所以如果需要的话，必须再采用一些措施来
-保证io服务一直运行，方法有两种：
-
+如何保证io服务一直运行:
 2.在异步操作完成回调中一直发起异步操作
 这种方式保证了一直有异步操作需要处理，run方法就不会返回，可以一直运行
 3.使用io_service::work
 在io_service::work不被析构的情况下，io服务会一直运行下去
 
 io_service::work如何实现:
-io_service::work只是将io服务要处理的异步操作个数加2，这样一直有异步操作需要执行，析构的时候异步个数被减1，如果这时已经没有要执行的异步操作，
+io_service::work只是将io服务要处理的异步操作个数加1，这样一直有异步操作需要执行，析构的时候异步个数被减1，如果这时已经没有要执行的异步操作，
 则会调用io服务的stop接口。
 
 如何退出io服务执行
 通常情况下调用io服务的stop接口即可，但是如果需要完成所有异步操作，应该还是需要等待其run接口正常退出。
 
-开辟线程来执行run函数，可理解为，线程一直循环执行队列中的事件。
+开辟线程来执行run函数，可理解为，线程在没有任务是阻塞，被唤醒后处理完任务后再阻塞。
 
 iomanager::iomanager() {
     for (size_t i = 1; i < _ioconfig.size(); ++i) {
@@ -1559,18 +1666,19 @@ int main ()
 2.如果将 a = b;则发现的是拷贝构造，默认的构造函数是位拷备。并不存在指针类型的转换，所以不存在多态，且这么简单的将b中虚函数表的指针赋值给
 a 的虚函数表的指针，a调用虚函数时就会出错，所以编译器会对这种情况进行处理，赋值后，虚函数表的指针指向A,调用时打针出 "is A"
 3.指针或引用类型进行赋值时， A* a = b; 则地址会进行类型转换，b中原本的虚函数指针，会被转成A类型的指针，所以只能寻址到A类虚函数表中存在
-的函数。  下列17的解释应该也正确
+的函数。所以父类的指针a能调用派生类中的虚函数，是因为父类中的虚函数表指针已被转换成是子类的虚函数表指针类型 下列17的解释应该也正确
 4.多态是运行时才决定调用哪个的实例的，但并不是根据指针的类型去决定的，每个虚函数都有固定的slot，，传入相应的slot，得到的函数实例是
 什么就是什么。
 
 
 17.虚函数实现
-编译器为每个包含虚函数的类，创建一个单独的虚函数表，类中存放的是表的指针。
+编译器为每个包含虚函数的类，创建一个单独的虚函数表(子类和父类中的表也不同)，类中存放的是表的指针。
 当基类中有虚函数时，派生类中的虚函数表会复制基类的表中的虚函数地址到对应的slot中，如果有复写，派生类中
 对应的slot中的地址会被改成新地址，若派生类中有新的虚函数，会在表的尾部插入。
 
 对一个虚函数取地址，因为其地址在编译时期是不确定的(多态在执行前，不知道调用的是哪个函数置),所能知道
 仅是虚函数在表中的索引值。所以对虚函数取地址，只能得到一个索引值
+
 
 
 18.虚函数的调用过程
