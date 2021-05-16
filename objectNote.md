@@ -697,7 +697,7 @@ public int[] singleNumber(int[] nums) {
 5    0101    2
 6    0110    2
 ```
-#### 位运算表示状态
+### 位运算表示状态
 * 利用一个bit位表示一个状态，如果是int类型，就有32个bit，所以可以表示32个状态
 ```
 enum EPLAYER_STATE
@@ -714,6 +714,272 @@ if(state & EPST_ADDHP) // 判断某位是否为1，将其它位置成0，同时�
 
 state &= ~(EPST_ADDHP | EPST_ADDMP) //清除状态，将某位置0，其它位不变
 ```
+#### 链表
+### 找出交点
+```
+A:a1 → a2
+            ↘
+                c1 → c2 → c3
+            ↗
+B:b1 → b2 → b3
+```
+只是单向链表，只能从头开始遍历
+因为：
+a2 a2 c1 c2 c3 b1 b2 b3 c1 c2 c3
+b1 b2 b3 c1 c2 c3 a1 a2 c1 c2 c3
+所以：按照以上顺序开始同时遍历，就能找到
+### 判断是否有交点
+比较最后一个结点是否相同
+
+### 链表反转
+头插法：取旧链表的头,剩下的是下个旧链表，取出的头插入新链表第二位，
+```
+public ListNode reverseList(ListNode head) {
+    ListNode newHead = new ListNode(-1);
+    while (head != null) {
+        ListNode next = head.next;//新头取出。临时保存下个旧链表的索引(头)
+        head.next = newHead.next;//插入新链表第二位
+        newHead.next = head;
+        head = next;//
+    }
+    return newHead.next;//新链表的头是第二位
+}
+```
+递归法:
+```
+1 2 2 
+3 4 5 
+从后往前，每次取出一个接在后，1要怎么接2后，先保存2，2和3交换完后，再将1接在2 后
+public ListNode reverseList(ListNode head) {
+    if (head == null || head.next == null) {
+        return head;
+    }
+    ListNode next = head.next;//经过reverseList后，head.next变了，所以要先保存next
+    ListNode newHead = reverseList(next);
+    next.next = head;
+    head.next = null;
+    return newHead;
+}
+```
+### 归并两个递增链表
+每次取头进行比较，如果是小的,它的next就是接下个比较的小的，每次比较都是取小的的next与另一个链表进行比较
+```
+public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
+    if (l1 == null) return l2; //递归终点
+    if (l2 == null) return l1;
+    if (l1.val < l2.val) {
+        l1.next = mergeTwoLists(l1.next, l2); //小的就取下个next进行比较，小的的next等于下个小的
+        return l1;
+    } else {
+        l2.next = mergeTwoLists(l1, l2.next);
+        return l2;
+    }
+}
+```
+### 从有序链表中删除重复节点
+Given 1->1->2, return 1->2.
+Given 1->1->2->3->3, return 1->2->3.
+函数功能，两两比较，正确设置next
+public ListNode deleteDuplicates(ListNode head) {
+    if (head == null || head.next == null) return head;
+    head.next = deleteDuplicates(head.next);自己的下一个是上一次比较的返回结果
+    return head.val == head.next.val ? head.next : head;
+}
+
+### 判断链表回文
+1. 找到中点，注意倚偶的中点,倚时分割的链表大小不一也可以判断回文
+2. 分割成两个链表
+3. 反转其中一个链表
+4. 比较每个元素
+
+#### 分割链表，分成k段，长度小到大
+```
+public ListNode[] splitListToParts(ListNode root, int k) {
+    int N = 0;
+    ListNode cur = root;
+    while (cur != null) {
+        N++;
+        cur = cur.next;
+    }
+    int mod = N % k;
+    int size = N / k;
+    ListNode[] ret = new ListNode[k];
+    cur = root;
+    for (int i = 0; cur != null && i < k; i++) {
+        ret[i] = cur; //数据中只需保存链表头
+        int curSize = size + (mod-- > 0 ? 1 : 0);
+        for (int j = 0; j < curSize - 1; j++) {
+            cur = cur.next;//找到这一组的最后一个
+        }
+        ListNode next = cur.next;//将最后一个与组分割
+        cur.next = null;
+        cur = next;
+    }
+    return ret;
+}
+```
+### 链表元素按奇偶聚集
+```
+//每别组成倚偶链表，再将两个链表接起来
+public ListNode oddEvenList(ListNode head) {
+    if (head == null) {
+        return head;
+    }
+    ListNode odd = head, even = head.next(//分别创建奇偶的头), evenHead = even(保存偶的头，最后要连);
+    while (even != null && even.next != null) {//同时操作while中的逻辑时，偶会先遇到null
+        odd.next = odd.next.next;
+        odd = odd.next;
+        even.next = even.next.next;
+        even = even.next;
+    }
+    odd.next = evenHead;
+    return head;
+}
+```
+
+
+### 堆或栈上建立对象
+* 栈上的对象是直接调用构造函数，同时会检查析构函数是否可用，禁用时可private析构函数
+```
+class A
+{
+protected: //不能直接调用构造和析构，所以不能在栈上创建
+    A(){}
+    ~A(){}
+public:
+    static A* create()//要在堆上建需要调用这两个函数
+    {
+        return new A();
+    }
+    void destory()
+    {
+        delete this;
+    }
+};
+```
+* 堆上的对象是先new，再调用构造函数，禁用可私有重载new和delete
+```
+class A
+{
+private:
+    void* operator new(size_t t){}     // 注意函数的第一个参数和返回值都是固定的
+    void operator delete(void* ptr){} // 重载了new就需要重载delete
+public:
+    A(){}
+    ~A(){}
+```
+#### 搜索
+### 计算在网格中从原点到特定点的最短路径长度
+* 在程序实现 BFS 时需要考虑以下问题：
+1. 队列：用来存储每一轮遍历得到的节点；
+2. 标记：对于遍历过的节点，应该将它标记，防止重复遍历。
+```
+搜索左上到右下的最短长度
+1能走。相邻点间距离为1，每次搜索一层，搜多少次就是多少长度
+[[1,1,0,1],
+ [1,0,1,0],
+ [1,1,1,1],
+ [1,0,1,1]]
+```
+
+#### 贪心思想
+* 贪心算法总是作出在当前看来最好的选择，也就是说贪心算法并不从整体最优考虑，它所作出的选择只是在某种意义上的局部最优选择。
+* eg1:找钱，先找最大，剩下的就好找。eg2:找一组数中的最大值，每次保存当前找到的最大值。eg3:子数组最大和，每次组成一个数组求和与当前最大进行比较
+## 不重叠需要移除多少组。
+总-不重叠数=移除数(不好理解可看成重叠是一种类型，有多少种类型就表示可组成不重叠的最多多少组)
+```
+eg1:
+Input: [ [1,2], [1,2], [1,2] ]
+Output: 2
+eg2:
+Input: [ [1,2], [2,3] ]
+Output: 0
+
+public int eraseOverlapIntervals(int[][] intervals) {
+    if (intervals.length == 0) {
+        return 0;
+    }
+    Arrays.sort(intervals, Comparator.comparingInt(o -> o[1])); //以右边界递增排序
+    int cnt = 1;
+    int end = intervals[0][1];
+    for (int i = 1; i < intervals.length; i++) {
+        if (intervals[i][0] < end) {//由eg2可自相等时不算重叠
+            continue;
+        }
+        end = intervals[i][1];
+        cnt++;
+    }
+    return intervals.length - cnt;
+}
+```
+###  买卖股票最大的收益
+```
+2 4 6
+输入: [7,1,5,3,6,4]
+输出: 5
+遍历找最小，每次找到最小就是买入价格，比它大就是卖出价格，同时算差价
+public int maxProfit(int[] prices) {
+    int n = prices.length;
+    if (n == 0) return 0;
+    int soFarMin = prices[0];
+    int max = 0;
+    for (int i = 1; i < n; i++) {
+        if (soFarMin > prices[i]) soFarMin = prices[i];
+        else max = Math.max(max, prices[i] - soFarMin);
+    }
+    return max;
+}
+```
+### 买卖股票的最大收益II
+* 买卖肯定是在一个递增区间内还能赚，可算最高底的差，可一段段的差
+* 对于 [a, b, c, d]，如果有 a <= b <= c <= d ，那么最大收益为 d - a。而 d - a = (d - c) + (c - b) + (b - a) 
+```
+public int maxProfit(int[] prices) {
+    int profit = 0;
+    for (int i = 1; i < prices.length; i++) {
+        if (prices[i] > prices[i - 1]) {
+            profit += (prices[i] - prices[i - 1]);
+        }
+    }
+    return profit;
+}
+```
+### 子数组最大的和
+* 主要是区分取一个数，是加入上个数组中，还是成为新的数组头。
+* 若curMax + x[i] <= x[i], 再加下一位，curMax + x[i+1]不可能超过x[i] + x[i+1],还不如从x[i]当新头开始算
+```
+[-2,1,-3,4,-1,2,1,-5,4],
+out:[4,-1,2,1]
+
+public int maxSubArray(int[] nums) {
+    if (nums == null || nums.length == 0) {
+        return 0;
+    }
+    int preSum = nums[0];
+    int maxSum = preSum;
+    for (int i = 1; i < nums.length; i++) {
+        preSum = preSum + nums[i] > nums[i] ? preSum + nums[i] : nums[i];
+        maxSum = Math.max(maxSum, preSum);
+    }
+    return maxSum;
+}
+```
+"ababcbacadefegdehijhklij"
+
+lastIdx = 0;
+for(auto i = 0; i < length; +++i) {
+    auto tmpIdx = idxMap.find(s[i]);
+    if(tmpIdx > lastIdx)lastIdx = tmpIdx;
+    if(i == lastIdx)
+        out.push(lasIdx)
+        lastIdx = 0;
+}
+
+### 递归
+1. 明确函数要做什么
+2. 寻找递归结束条件
+3. 找出函数的等价关系,不断的缩小参数范围
+
 
 #### noncopyable
 ```
