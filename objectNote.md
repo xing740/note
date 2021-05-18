@@ -980,6 +980,66 @@ for(auto i = 0; i < length; +++i) {
 2. 寻找递归结束条件
 3. 找出函数的等价关系,不断的缩小参数范围
 
+#### 二分查找
+* 比较目标数存在的区域，找到方法不断的缩小区间的范围
+* 死循环问题
+```
+int m = l + (h - l) / 2;
+上式可能出现 l == m
+在接下的设边界中，不要出现l = m,如果出现，改成int m = r - (h - l) / 2;
+```
+### 在有重复数中找左边界
+* 右边界与目标相等时要不断移，左边只有小于目标时才移。求右边界反之
+* 找到后不要退出，继续找，可假设极端的例子进行设想，比如全是0，找最左边的0，所以右边要不断的移，(主要是要根据找的是右边还是左边来判断先设哪个边界),最后是h=l,试测循环的最后两次，就知道如果while(l <= h)时会无法退出，
+```
+public int binarySearch(int[] nums, int key) {
+    int l = 0, h = nums.length;
+    while (l < h) {
+        int m = l + (h - l) / 2;
+        if (nums[m] >= key) {
+            h = m;
+        } else {
+            l = m + 1;
+        }
+    }
+}
+```
+### 大于给定元素的最小元素
+* 如果是要比较全部的找一个数据，就一直找到指向同一个。然后比较结果
+* 找右边界的数的下一位
+```
+int find(int x[], int y, int length) {
+    auto l = 0, r = length - 1;
+    while(l < r) {
+        auto mid = l + (r - l) / 2;
+        if(x[mid] > y)
+            r = mid;
+        else
+            l = mid + 1;
+    }
+    return x[l] > y ? l : -1;
+}
+```
+### 一个有序数组只有一个数不出现两次，找出这个数
+* mid本来要处理奇偶，把mid变成偶，就只需处理一种情况，剩下的区间内只要包括目标数，最后就一定能找的到
+'''
+public int singleNonDuplicate(int[] nums) {
+    int l = 0, h = nums.length - 1;
+    while (l < h) {
+        int m = l + (h - l) / 2;
+        if (m % 2 == 1) {
+            m--;   // 保证 l/h/m 都在偶数位，使得查找区间大小一直都是奇数
+        }
+        if (nums[m] == nums[m + 1]) {
+            l = m + 2;
+        } else {
+            h = m;
+        }
+    }
+    return nums[l];
+}
+'''
+
 
 #### noncopyable
 ```

@@ -1218,7 +1218,7 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程
 char x[20] = "hello";
 sizeof(x) // 等于20
 void fun(char x[]) {
-  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针
+  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针.难怪一般的c函数，如果传的是数组，都要先算出数组长度再传入
 }
 ```
 * strlen 计算字符串的实现长度，参数必须为char* 类型
