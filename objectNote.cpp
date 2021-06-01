@@ -754,18 +754,9 @@ int main(int argc, char* argv[]) argv[1] 是函数名，其后是参数
 一个程序的执行必须有main函数入口，且不能被其它函数调用，所以当需要参数时，不能在代码中取的，只能从外传入，因此main函数有参数
 exec不能看成只执行函数，它是执行可执行文件的
 
-349.std::map lower_bound下限。 排序小到大
-mp[2] = "a";                                                                                                                                                                       
-mp[4] = "b";                                                                                                                                                                       
-mp[6] = "c";                                                                                                                                                                       
-mp[8] = "d"; 
-mp.lower_bound[4].first == 3  //找出第一个>=3的
-mp.upper_bound[4].first == 5  //找出第一个 > 3的
-mp.lower_bound[5].first == 5
-mp.upper_bound[5].first == 5
-
-3 6  7
-
+349.lower_upper
+上限：小到大排列
+下限：大到小排序
 
 351
 epoll事件有两种模型：
@@ -941,10 +932,6 @@ TCP 类型隧道启动成功
 使用 [us-or-aws.sakurafrp.com:58174] 来连接到你的隧道
 或使用 IP 地址连接（不推荐）：[36.160.49.136:58173]
 
-400.
-2.异或
-记住 a^b^a = b;
-
 401:C++中输出数组数据分两类情况：
 当变量为字符型数组时，系统会将数组当作字符串来输出
 eg:
@@ -954,7 +941,7 @@ cout << str <<endl ;  //输出13
 当定义变量为非字符符数组时,系统会将数组名当作一个地址来输出，如：
 eg:
 int  a[11]={1,2,3};
-cout << a <<endl ;  //按17进制输出a的值（地址）    0012FF58
+cout << a <<endl ;  //按16进制输出a的值（地址）    0012FF58
 
 402.因为网络id和主机id的位数不固定，可能相互占用，所以出现了子网掩码
 
@@ -970,63 +957,11 @@ cout << a <<endl ;  //按17进制输出a的值（地址）    0012FF58
 O(1):O表示算法的时间性能, 1表示基本语句执行次数是一个常数，即用的时间是常数O(1),不会即着数据的增长而增长。
 
 skill:
-1.根据不同类型，执行不同的逻辑，我可能会在一个函数中实现，逻辑会很多很长，以下是构建类时，就确定了要执行的方法
-		class ActivityCCRank {
-		public:
-			ActivityCCRank(const int type) : Type(type) {
-				SGM = SINGLETONMUTEXPTRCREATE();
-				if (type == ActivityRankEnum::activity_battle_rank) {
-					_clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list_sp1, this);
-				}
-				else {
-					_clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list, this);
-				}
-			}
-      private:
-      boost::function<void> _clean_function;
-      };
 
-2.利用一个数组保存对象和标记位对应的外部函数
-_subscribers[length] = child;
-_subscribers[length + FULFILLED] = onFulfillment;
-_subscribers[length + REJECTED] = onRejection
-
-3.根据类型进行某种操作时，可将类型以模板的形式传入
-
-eg:
-template <typename Service>
-asio::io_service::service* service_registry::create(
-    asio::io_service& owner)
-{
-  return new Service(owner);
-}
-
-4.如果锁需要在函数中进行操作，可当锁当参数传入
-mutex::scoped_lock lock(mutex_);
-  op_queue_.push(op);//放入任务队列，并唤醒一个线程进行处理
-  wake_one_thread_and_unlock(lock);
-
-5.保证某逻辑一定执行的方法
-struct task_io_service::work_finished_on_block_exit
-{
-  ~work_finished_on_block_exit()
-  {
-    task_io_service_->work_finished();
-  }
-  task_io_service* task_io_service_;
-};
-void func()
-{
-  work_finished_on_block_exit on_exit = { this };
-  (void)on_exit;//因为on_exit没用使用，加void避免警告
-  o->complete(*this);//相这里执行完成，一定调用work_finished函数，但某些错误可能会导致执行不到，
-  //work_finished_on_block_exit的方法保证了，只要不挂，就一样能执行到
-}
-      
 406.重载operator
 int x = 5;调用的是x的构造器，所以 class a < 5时;调用的是类a中的 bool operator < ();
 
-407. std::array 不会主动初始化
+407. std::array 不会自动初始化
 
 408. map.find()    
 iterator find (const key_type& k); //返回的是临时变量，不能用&
@@ -1034,7 +969,8 @@ const_iterator find (const key_type& k) const;//可以用引用
 好像用上面那个，可以直接修改val的值
 
 409 operator()
-1.直接使用对象时调用，eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
+1.直接使用对象时调用
+eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
 
 410 寻路.广度优先搜索
 0.一定能找到最快的路线
@@ -1105,8 +1041,7 @@ __end__:
   return paths;
 }
 ```
-5.17下
-410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
+410. p->Escort()中去调用tofull()，此时会判断是否需要调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
 
 411.打印变量，得到变量对应的值，打印指针变量,得指针对应的值，即指针指向的地址。
 
@@ -1158,7 +1093,7 @@ int main(int argc, char *argv[])
 }
 
 静态成员函数
-指针中保存的也是一个相对地址(因为属于类),指针的声明和使用于普通函数一样
+指针中保存的也是一个相对地址(因为属于类),指针的声明和使用与普通函数一样
 class Test
 {
 public:
@@ -1175,7 +1110,7 @@ int main(int argc, char *argv[])
     //直接调用
     pFunc();//Test::print
     (*pFunc)();//Test::print
-    Test test;
+    Test test;//不能通过对象或对象指针调用
     //(test.*pFunc)();//error
     Test* pTest = &test;
     //(pTest->*pFunc)();//error
@@ -1194,9 +1129,10 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程
 415.战斗
 不管是创建玩家还是npc战斗对象，都是是armyside类，其它的武将也都是army
 位置：[x坐标，y坐标，朝向]
-进攻点不同，也就是出生点不同
+进攻点不同,也就是出生点不同
 
 416.
+//注意连接两字
 动态链接：链接时不会将用到的库连接到可执行文件中，只在运行时才会链接,启动时如果缺少库，系统会终止程序
 节省内存、更新方便，但在运行时每次都要链接库，有一定的性能损失
 静态链接：链接时会把所以用到的.o文件链接到最终的可执行文件中
@@ -1217,10 +1153,10 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程
 char x[20] = "hello";
 sizeof(x) // 等于20
 void fun(char x[]) {
-  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针.难怪一般的c函数，如果传的是数组，都要先算出数组长度再传入
+  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针.所以c函数，如果传的是数组，还要传入数组长度
 }
 ```
-* strlen 计算字符串的实现长度，参数必须为char* 类型
+* strlen 计算字符串的长度，参数必须为char* 类型
 
 420.define 和 const区别
 define：在预处理阶段处理，不会进行数据检查，代码中有多少处使用就有多少替换，占用了代码段空间。不能进行调试(不能断点在define定义处，替换处也看不到替换后的代码)
@@ -1256,8 +1192,8 @@ C++:因为有bool 类型 sizeof（1 == 1） == sizeof（true） 按照bool类型
 
 429.编译器根据初始值来推算变量的类型，要求用 auto 定义变量时必须有初始值。编译器推断出来的 auto 类型有时和初始值类型并不完全一样，编译器会适当改变结果类型使其更符合初始化规则。
 
-430.析构函数一般定义成虚函数
-析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数，会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。
+430.析构函数定义成虚函数原因：
+当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数，会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。
 
 jilu
 1.引用作为递归参数，为什么可以多次引用 

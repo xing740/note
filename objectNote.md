@@ -654,6 +654,9 @@ thread_shared::GetLocalMongo().SaveMongo(DBN::dbPlayerEmail,
 
 #### 算法
 ### 位运算
+* n&(n-1)可实现去除n中最右边的1(因为一定会用到n最右边的1，且其它位的1一定用不到)
+* n&(-n)得n最右边的1.(-n为n取反加1)
+
 1. 找出数组中缺失的那个数 (将数组模拟成里面都是两两相同的元素)
 ```
 Input: [3,0,1]
@@ -669,7 +672,7 @@ public int missingNumber(int[] nums) {
 ```
 2. 数组中不重复的两个元素(试图分成两个数组，不同的数分别在不同的数组，数组其它数都是两两相同)
 两个不相等的元素在位级表示上必定会有一位存在不同。
-diff &= -diff 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位
+设x = (diff &= -diff) 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位. 两个不同的元素与x进行&操作，一定有一个结果全为0，一个这位为1
 
 public int[] singleNumber(int[] nums) {
     int diff = 0;
@@ -685,17 +688,15 @@ public int[] singleNumber(int[] nums) {
 
 3. 统计从 0 ~ n 每个数的二进制表示中 1 的个数
 ```
-//每个i值的1个数都是i&(i-1)对应的值的1的个数再加1
-0    0000    0
--------------
-1    0001    1
--------------
-2    0010    1
-3    0011    2
--------------
-4    0100    1
-5    0101    2
-6    0110    2
+i&(i-1)会把i中最右边的1去掉，所以i去掉1后，肯定是一个小于i的数，而所有小于i的数的1个数，之前已算出结果，所以可找到之前算出的结果加1。可看成是动态规则
+void oneNum(int num) {
+    std::vector<int> n;
+    n.assign(num + 1, 0);
+    for(auto i = 1; i <= num; ++i) {
+        n[i] = n[i&(i-1)] + 1;
+    }
+    cout << n.back() << endl;
+}
 ```
 ### 位运算表示状态
 * 利用一个bit位表示一个状态，如果是int类型，就有32个bit，所以可以表示32个状态
@@ -713,15 +714,18 @@ state |= (EPST_ADDHP | EPST_ADDMP)
 if(state & EPST_ADDHP) // 判断某位是否为1，将其它位置成0，同时判断那一位是否为1,结果非0，表示一定有一个bit是1
 
 state &= ~(EPST_ADDHP | EPST_ADDMP) //清除状态，将某位置0，其它位不变
+
+//2021-5-31
 ```
 #### 链表
 ### 找出交点
+* 同时遍历两条链表，遍历到尾后，再交换从头遍历
 ```
 A:a1 → a2
             ↘
                 c1 → c2 → c3
             ↗
-B:b1 → b2 → b3
+B:b1 → b2
 ```
 只是单向链表，只能从头开始遍历
 因为：
@@ -729,7 +733,7 @@ a2 a2 c1 c2 c3 b1 b2 b3 c1 c2 c3
 b1 b2 b3 c1 c2 c3 a1 a2 c1 c2 c3
 所以：按照以上顺序开始同时遍历，就能找到
 ### 判断是否有交点
-比较最后一个结点是否相同
+由上可知:只需比较最后一个结点是否相同
 
 ### 链表反转
 头插法：取旧链表的头,剩下的是下个旧链表，取出的头插入新链表第二位，
@@ -762,7 +766,7 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 ### 归并两个递增链表
-每次取头进行比较，如果是小的,它的next就是接下个比较的小的，每次比较都是取小的的next与另一个链表进行比较
+每次取头进行比较，如果大小,较少者的next就是接下个比较的小的，每次比较都是取较小的next与另一个链表进行比较
 ```
 public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
     if (l1 == null) return l2; //递归终点
@@ -779,7 +783,7 @@ public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
 ### 从有序链表中删除重复节点
 Given 1->1->2, return 1->2.
 Given 1->1->2->3->3, return 1->2->3.
-函数功能，两两比较，正确设置next
+好比全部打断，从尾开始比较大小重新连接
 public ListNode deleteDuplicates(ListNode head) {
     if (head == null || head.next == null) return head;
     head.next = deleteDuplicates(head.next);自己的下一个是上一次比较的返回结果
@@ -792,7 +796,8 @@ public ListNode deleteDuplicates(ListNode head) {
 3. 反转其中一个链表
 4. 比较每个元素
 
-#### 分割链表，分成k段，长度小到大
+#### 分割链表，分成k段，排在前面的要大于等于后面的长度
+* 设置每次的分割长度。分割时找到每段的尾，实尾与后面的断开。
 ```
 public ListNode[] splitListToParts(ListNode root, int k) {
     int N = 0;
@@ -819,8 +824,10 @@ public ListNode[] splitListToParts(ListNode root, int k) {
 }
 ```
 ### 链表元素按奇偶聚集
+* 创建头，因为偶之后要链在奇末尾，所以要先保存偶头。
+* 先操作奇，所以要先判断偶的头和next是否存在
 ```
-//每别组成倚偶链表，再将两个链表接起来
+
 public ListNode oddEvenList(ListNode head) {
     if (head == null) {
         return head;
@@ -868,20 +875,6 @@ public:
     A(){}
     ~A(){}
 ```
-#### 搜索
-### 计算在网格中从原点到特定点的最短路径长度
-* 在程序实现 BFS 时需要考虑以下问题：
-1. 队列：用来存储每一轮遍历得到的节点；
-2. 标记：对于遍历过的节点，应该将它标记，防止重复遍历。
-```
-搜索左上到右下的最短长度
-1能走。相邻点间距离为1，每次搜索一层，搜多少次就是多少长度
-[[1,1,0,1],
- [1,0,1,0],
- [1,1,1,1],
- [1,0,1,1]]
-```
-
 #### 贪心思想
 * 贪心算法总是作出在当前看来最好的选择，也就是说贪心算法并不从整体最优考虑，作出的选择只是在某种意义上的局部最优选择。
 * eg1:找钱，先找最大，剩下的就好找。eg2:找一组数中的最大值，每次保存当前找过的数的最大值。eg3:子数组最大和，每次组成一个数组求和与当前最大进行比较
@@ -904,7 +897,7 @@ public int eraseOverlapIntervals(int[][] intervals) {
     int cnt = 1;
     int end = intervals[0][1];
     for (int i = 1; i < intervals.length; i++) {
-        if (intervals[i][0] < end) {//由eg2可自相等时不算重叠
+        if (intervals[i][0] < end) {//由eg2可知相等时不算重叠
             continue;
         }
         end = intervals[i][1];
@@ -913,23 +906,23 @@ public int eraseOverlapIntervals(int[][] intervals) {
     return intervals.length - cnt;
 }
 ```
-2021/05/17 
 
-
-###  买卖股票最大的收益
+###  一次买卖股票最大的收益
 ```
 2 4 6
 输入: [7,1,5,3,6,4]
 输出: 5
-遍历找最小，每次找到最小就是买入价格，比它大就是卖出价格，同时算差价
+遍历全部，遇到小时设置最少，偶到大时算差
 public int maxProfit(int[] prices) {
     int n = prices.length;
     if (n == 0) return 0;
     int soFarMin = prices[0];
     int max = 0;
     for (int i = 1; i < n; i++) {
-        if (soFarMin > prices[i]) soFarMin = prices[i];
-        else max = Math.max(max, prices[i] - soFarMin);
+        if (soFarMin > prices[i])
+            soFarMin = prices[i];
+        else
+            max = Math.max(max, prices[i] - soFarMin);
     }
     return max;
 }
@@ -968,21 +961,12 @@ public int maxSubArray(int[] nums) {
     return maxSum;
 }
 ```
-"ababcbacadefegdehijhklij"
-
-lastIdx = 0;
-for(auto i = 0; i < length; +++i) {
-    auto tmpIdx = idxMap.find(s[i]);
-    if(tmpIdx > lastIdx)lastIdx = tmpIdx;
-    if(i == lastIdx)
-        out.push(lasIdx)
-        lastIdx = 0;
-}
 
 ### 递归
 1. 明确函数要做什么
 2. 寻找递归结束条件（递归函数中什么时候不再次调用函数就退出）
 3. 找出函数的等价关系,不断的缩小参数范围
+4. 递归函数中什么时候调用递归函数
 
 #### 二分查找
 * 比较目标数存在的区域，找到方法不断的缩小区间的范围
@@ -1010,7 +994,7 @@ public int binarySearch(int[] nums, int key) {
 ```
 ### 大于给定元素的最小元素
 * 如果是要比较全部的找一个数据，就一直找到指向同一个。然后比较结果
-* 找右边界的数的下一位
+* 左边移动的条件是<=，右边移动的条件是大于，且需要先判断右边
 ```
 int find(int x[], int y, int length) {
     auto l = 0, r = length - 1;
@@ -1043,14 +1027,187 @@ public int singleNonDuplicate(int[] nums) {
     return nums[l];
 }
 '''
-#### 搜索
-* 广度优先搜索，同步搜索所以可能，看哪种可能性最先达到目的
-* 广度优先搜索一层一层地进行遍历，每层遍历都是以上一层遍历的结果作为起点，遍历一个距离能访问到的所有节点。需要注意的是，遍历过的节点不能再次被遍历。
+#### 广度优先搜索
+* 同步搜索所有可能，看哪种可能性最先达到目的
+* 是一层一层地进行遍历，每层遍历都是以上一层遍历的结果作为起点，遍历一个距离能访问到的所有节点。需要注意的是，遍历过的节点不能再次被遍历。
 * 相当于，每遇到分叉时，分身出多个人同时走遇到的叉路。也就相当于很多人，同时走所有可以走的路线。看谁先到终点。
 
 ### 组成整数的平方数的最少数量
 * 整数不断的减去一个平方数，直到为0，所有可能性同时找，
 
+#### 深度优先搜索
+* 深度优先搜索在得到一个新节点时立即对新节点进行遍历,同一时间只会判断一种可能性
+* 递归的判断某一可能性
+
+### 即能流到太平洋，又能流到大西洋的点
+* 通过已知在太平洋的点，反向搜索源头，经过的点都是可流到太平洋的.大西洋也一样，最后比较重叠点
+```
+  Pacific ~   ~   ~   ~   ~
+       ~  1   2   2   3  (5) *
+       ~  3   2   3  (4) (4) *
+       ~  2   4  (5)  3   1  *
+       ~ (6) (7)  1   4   5  *
+       ~ (5)  1   1   2   4  *
+          *   *   *   *   * Atlantic
+```
+#### 搜索
+### 计算在网格中从原点到特定点的最短路径长度
+* 在程序实现 BFS 时需要考虑以下问题：
+1. 队列：用来存储每一轮遍历得到的节点；
+2. 标记：对于遍历过的节点，应该将它标记，防止重复遍历。
+```
+搜索左上到右下的最短长度
+1能走。相邻点间距离为1，每次搜索一层，搜多少次就是多少长度
+[[1,1,0,1],
+ [1,0,1,0],
+ [1,1,1,1],
+ [1,0,1,1]]
+```
+
+#### 回溯
+* 一种选优搜索法，按选优条件向前搜索，以达到目标。但当探索到某一步时，发现原先选择并不优或达不到目标，就退回一步重新选择.
+* 可以理解为通过选择不同的岔路口寻找目的地，一个岔路口一个岔路口的去尝试找到目的地。如果走错了路，继续返回来找到岔路口的另一条路，直到找到目的地。
+* 当发现一条路走不通时，是返回最近的一个分叉选择另一条路走。之所以能回到分叉处走另一条路，是因为分叉处选择的第一条路好比是第一次调用递归，递归函数返回时，就好比回到了分叉处。第二次调用递归，就好比走第二条路
+* 递归找到后停止递归：即是回到分叉口后不再调用递归函数。递归第一次返回，是在终点，在终点处可返回Bool判断这条路对不对。每个分叉通过递归返回值判断要不要再次调用递归
+* 适合解决类似树的运行顺序的问题，即从一个分叉开始，走到底后返回最近的分叉重新走，离终点最近的分叉走完后，再返回第二近的分叉选择路走。
+
+### 排列
+```
+[1,2,3]
+[
+  [1,2,3],
+  [1,3,2],
+  [2,1,3],
+  [2,3,1],
+  [3,1,2],
+  [3,2,1]
+]
+
+//含有相同元素求排列
+[1,1,2]
+[[1,1,2], [1,2,1], [2,1,1]]
+//分叉处不要使用该处已使用过的相同数字
+```
+###
+* 给定一个无重复元素的数组 candidates 和一个目标数 target ，找出 candidates 中所有可以使数字和为 target 的组合。 数字可以无限制重复被选取。解集不能包含重复的组合。 
+```
+解集中出现重复的组合，是因为用了一个数字之后，可能在之后的任意一次选取中，又使用了这个数字。
+保证每次选取一个数时，下次又尝试取同一个数,如果尝试的这次不行，之后都不会再取到这个数
+(解题时想出出现问题的条件，避免这些条件出现，问题则不会出现)
+
+std::vector<int> p = {3, 5, 2};
+int target = 8;
+void heDfs(int i, int sum, std::vector<int> res)
+{
+    sum += p[i];
+    res.push_back(p[i]);
+    if (sum == target)
+    {
+        cout << endl;
+        for (const auto &it : res)
+            cout << it << " ";
+        return;
+    }
+    for(auto j = i; j < p.size(); ++j)
+    {
+        if (sum + p[j] > target)
+            continue;
+        heDfs(j, sum, res);
+    }
+}
+int main()
+{
+    for(auto i = 0; i < p.size(); ++i)
+        heDfs(i, 0, {});
+}
+```
+### 子集
+* 给你一个整数数组,数组中的元素互不相同.返回该数组所有可能的子集.解集不能包含重复的子集.你可以按任意顺序返回解集。
+```
+eg:
+输入：nums = [1,2,3]
+输出：[[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+//观察结果，可总结出规律，本分叉使用的idx，下一个分叉只能idx从+1开始使用。
+从上面的结果不容易发现规律，因为不是走完一个完整的递归函数返回的结果。
+1 
+1 2
+1 2 3  //上三行是一个递归返回的结果，可看出下一递归使用的idx从+1开始
+1 3
+2
+2 3
+3
+
+std::vector<int> p = {1, 2, 3};
+void zjDfs(int start, std::vector<int> res) {
+    if(start >= p.size())return;
+    for(auto i = start; i < p.size();++i) {
+        //if(i > start && p[i] == p[i - 1]) //每个分叉不使用使用过的元素，就可避免p中有重复元素问题
+            //continue;
+        res.push_back(p[i]);
+        cout << endl;
+        for(const auto& it : res) {
+            cout << it << " ";
+        }
+        zjDfs(i + 1, res);
+        res.pop_back();
+    }
+}
+```
+### 分割字符串使得每个部分都是回文数
+```
+//模拟出一个完整的递归是怎么走的。回到叉路口又怎么走
+bool isHW(const string& str) {
+    if(str.empty())return false;
+    auto l = str.length() - 1;
+    auto s = 0;
+    while(s < l) {
+        if(str[s++] == str[l--])continue;
+        return false;
+    }
+    return true;
+}
+void hwDfs(std::vector<string> res, const string& str) {
+    if(str.empty()) {
+        cout << endl;
+        for(const auto& it : res)cout << it << " ";
+    }
+    for(auto i = 1; i <= str.length(); ++i) {
+        const auto tmpStr = str.substr(0, i);
+        if(!isHW(tmpStr))continue;
+        res.push_back(tmpStr);
+        hwDfs(res, str.substr(i));
+        res.pop_back();
+    }
+}
+```
+
+#### 回溯和深度优先异同
+* 相同
+1. 一步步的往前探索
+* 不同
+1. 深度目的是“遍历”，本质是无序的,访问次序不重要，重要的是都被访问过了。要标记是否被访问过。
+2. 回溯目的是“求解过程”，本质是有序的.同样的内容不同的序访问就会造成不同的结果，而不是仅仅“是否被访问过”这么简单。也就是对于每个点记录已经访问过的邻居方向，回溯之后从新的未访问过的方向去访问邻居。至于这点之前有没有被访问过并不重要，重要的是没有以当前的序进行访问。
+3. 深度优先遍历：已经访问过的节点不再访问，所有点仅访问一次。
+4. 回溯法：已经访问过的点可能再次访问，也可能存在没有被访问过的点。
+
+#### 动态规划
+* 一定范围内的最优解，并不会随范围的变大而变化
+* 增加范围后的最优解与原范围有关系。原范围的最优解与增加的范围没有关系
+* 推导出n时的公式
+### 抓楼梯(可抓1或2阶)
+* 从n-1到n和从n-2到n(都是只跳一次)，一定是不同的方法(n-1最后一步是1阶，n-2最后一步是2阶).且从0到n-1的方法等于0到n-1再到n的方法(n-2也一样).所以到n = 0到n-1方法 + 0到n-2方法
+### 强盗在环形街区抢劫
+* 看成是两个街道，分比求最优，再比较两个的最优
+
+1 1
+2 11 2
+3 111 21 12
+4 1111 211 121 112 22
+[1, 2, 5, 6]
+n n + n-2
+n - 1
+
+m = max(n + n-2, n - 1)
 
 #### noncopyable
 ```
@@ -1113,3 +1270,28 @@ public:
   id() {}
 }
 ```
+### 如果锁需要在函数中进行操作，可将锁当参数传入
+```
+mutex::scoped_lock lock(mutex_);
+  op_queue_.push(op);//放入任务队列，并唤醒一个线程进行处理
+  wake_one_thread_and_unlock(lock);
+```
+### 保证某逻辑一定执行的方法
+```
+struct task_io_service::work_finished_on_block_exit
+{
+  ~work_finished_on_block_exit()
+  {
+    task_io_service_->work_finished();
+  }
+  task_io_service* task_io_service_;
+};
+void func()
+{
+  work_finished_on_block_exit on_exit = { this };
+  (void)on_exit;//因为on_exit没用使用，加void避免警告
+  o->complete(*this);//想这里执行完成，一定调用work_finished函数，但某些错误可能会导致执行不到，
+  //work_finished_on_block_exit的方法保证了，只要不挂，就一样能执行到.要挂了，执不执行都无所谓了
+}
+```
+      
