@@ -708,6 +708,11 @@ std::move在提高 swap 函数的的性能上非常有帮助，一般来说，sw
        b = std::move(tmp);  // move tmp to b 
 }
 
+std::move() 实现原理：
+利用引用折叠原理将右值经过 T&& 传递类型保持不变还是右值，而左值经过 T&& 变为普通的左值引用，以保证模板可以传递任意实参，且保持类型不变；
+然后通过 remove_refrence 移除引用，得到具体的类型 T；
+最后通过 static_cast<> 进行强制类型转换，返回 T&& 右值引用。
+
 329.remvoe_reference 去掉引用，返回纯粹的类型,提交出来的类型的别名是成员变量type
 typedef int&& rval_int;
   std::remove_reference<int>::type;
@@ -943,6 +948,7 @@ eg:
 int  a[11]={1,2,3};
 cout << a <<endl ;  //按16进制输出a的值（地址）    0012FF58
 
+//read
 402.因为网络id和主机id的位数不固定，可能相互占用，所以出现了子网掩码
 
 403.时间复杂度，logn 以2为低数，n为真数，eg:n为4时，logn等于2,二分法就是logn
@@ -971,6 +977,82 @@ const_iterator find (const key_type& k) const;//可以用引用
 409 operator()
 1.直接使用对象时调用
 eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
+
+410.拷备构造必须传引用
+A(const A& a);
+不是引用时，传参会发现拷备，会调用构造器，会发现拷备构造无限递归的情况
+
+411.构造顺序
+1.类对象的初始化顺序：基类构造函数–>派生类成员变量的构造函数–>自身构造函数
+2.基类构造函数的调用顺序与派生类的派生列表中的顺序有关；
+3.成员变量的初始化顺序与声明顺序有关；
+4.析构顺序和构造顺序相反。
+
+412.全局对象、静态对象、分配在栈区域内的对象，在编译阶段进行内存分配；存储在堆空间的对象，是在运行阶段进行内存分配。
+
+413.
+编译时多态：在程序编译过程中出现，发生在模板和函数重载中（泛型编程）。
+运行时多态：在程序运行过程中出现，发生在继承体系中，是指通过基类的指针或引用访问派生类中的虚函数。
+
+414.如何让类不能被继承
+template <typename T>
+class Base{
+    friend T;
+private://私有构造器
+    Base(){
+        cout << "base" << endl;
+    }
+    ~Base(){}
+};
+class B:virtual public Base<B>{   //一定注意 必须是虚继承  因为虚继承时，是最后一个派生类负责对虚基类的调用，此处的C不是Base的友元.如果不是虚继承，是B负责调用，所以
+public:                           //C还是能正常创建。
+    B(){
+        cout << "B" << endl;
+    }
+};//B可以单独构造，因为B是Base的友元
+class C:public B{
+public:
+    C(){}     // error: 'Base<T>::Base() [with T = B]' is private within this context
+};
+int main(){
+    B b;  
+    return 0;
+}
+
+415.空指针：
+若指针指向一块内存空间，当这块内存空间被释放后，该指针依然指向这块内存空间，此时，称该指针为“悬空指针”。
+
+416.nullptr 比 NULL 优势
+1.NULL是预定义变量，是一个宏,本质是0.
+2.nullptr 是指针类型，可以转换成任意的指针类型
+3.NULL可能在重载使用时有问题
+eg:
+void fun(char const *p)
+{
+    cout << "fun(char const *p)" << endl;
+}
+void fun(int tmp)
+{
+    cout << "fun(int tmp)" << endl;
+}
+int main()
+{
+    fun(nullptr); // fun(char const *p)
+    fun(NULL); // error: call of overloaded 'fun(NULL)' is ambiguous
+    return 0;
+}
+
+416.指针与引用的区别
+指针所指向的内存空间在程序运行过程中可以改变，而引用所绑定的对象一旦绑定就不能改变.
+指针本身在内存中占有内存空间，引用相当于变量的别名，在内存中不占内存空间。
+指针可以为空，但是引用必须绑定对象.
+指针可以有多级，但是引用只能一级。
+
+417.如何判断结构体是否相等？能否用 memcmp 函数判断结构体相等？
+1.需要重载操作符 == 判断两个结构体是否相等.
+2. memcmp 函数是逐个字节进行比较的，而结构体存在内存空间中保存时存在字节对齐，字节对齐时补的字节内容是随机的，会产生垃圾值，所以无法比较。
+
+利用运算符重载来实现结构体对象的比较：
 
 410 寻路.广度优先搜索
 0.一定能找到最快的路线
