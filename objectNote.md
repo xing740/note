@@ -655,7 +655,7 @@ thread_shared::GetLocalMongo().SaveMongo(DBN::dbPlayerEmail,
 #### 算法
 ### 位运算
 * n&(n-1)可实现去除n中最右边的1(因为一定会用到n最右边的1，且其它位的1一定用不到)
-* n&(-n)得n最右边的1.(-n为n取反加1)
+* n&(-n)得n最右边的1.(-n为n取反加1).取反后，n最右边的零变为1，最右边的1变为0，所以加1后，又变回原来
 
 1. 找出数组中缺失的那个数 (将数组模拟成里面都是两两相同的元素)
 ```
@@ -670,10 +670,10 @@ public int missingNumber(int[] nums) {
     return ret ^ nums.length;//不可能是最后一个数，所以还要与数组长度进行异或
 } 
 ```
-2. 数组中不重复的两个元素(试图分成两个数组，不同的数分别在不同的数组，数组其它数都是两两相同)
-两个不相等的元素在位级表示上必定会有一位存在不同。
-设x = (diff &= -diff) 得到出 diff 最右侧不为 0 的位，也就是不存在重复的两个元素在位级表示上最右侧不同的那一位. 两个不同的元素与x进行&操作，一定有一个结果全为0，一个这位为1
-
+2. 找出数组中不重复的两个元素
+* 试图分成两个数组，不同的数分别在不同的数组，数组其它数都是两两相同
+* 两个不相等的元素在位级表示上必定会有一位存在不同。找出不同那一位的数，所有元素与其&操作。结果一定为0或非0
+```
 public int[] singleNumber(int[] nums) {
     int diff = 0;
     for (int num : nums) diff ^= num;
@@ -685,7 +685,7 @@ public int[] singleNumber(int[] nums) {
     }
     return ret;
 }
-
+```
 3. 统计从 0 ~ n 每个数的二进制表示中 1 的个数
 ```
 i&(i-1)会把i中最右边的1去掉，所以i去掉1后，肯定是一个小于i的数，而所有小于i的数的1个数，之前已算出结果，所以可找到之前算出的结果加1。可看成是动态规则
@@ -751,9 +751,9 @@ public ListNode reverseList(ListNode head) {
 ```
 递归法:
 ```
-1 2 2 
-3 4 5 
-从后往前，每次取出一个接在后，1要怎么接2后，先保存2，2和3交换完后，再将1接在2 后
+1 2 3
+* 用递归打断所有结点，当到最后一个时，2接到3后，1接到2后，都是接到本身结点的下一个结点
+* newHead始终是最后一个结点3
 public ListNode reverseList(ListNode head) {
     if (head == null || head.next == null) {
         return head;
@@ -766,7 +766,9 @@ public ListNode reverseList(ListNode head) {
 }
 ```
 ### 归并两个递增链表
-每次取头进行比较，如果大小,较少者的next就是接下个比较的小的，每次比较都是取较小的next与另一个链表进行比较
+1 2 2
+2 3 4
+* 递归功能：每次比较头结点，下次比较是取大的与小的的next时行比较,返回的结果接在小后
 ```
 public ListNode mergeTwoLists(ListNode l1, ListNode l2) {
     if (l1 == null) return l2; //递归终点
@@ -1157,6 +1159,11 @@ void zjDfs(int start, std::vector<int> res) {
 ```
 ### 分割字符串使得每个部分都是回文数
 ```
+For example, given s = "aab",
+[
+  ["aa","b"],
+  ["a","a","b"]
+]
 //模拟出一个完整的递归是怎么走的。回到叉路口又怎么走
 bool isHW(const string& str) {
     if(str.empty())return false;
@@ -1250,7 +1257,7 @@ int cowNums(int n){
 ### 矩阵路径
 * 只能往下或往右走，找从左上到右下的最小路径和
 ```
-* 到某个点只能是从上或从左过来的，只需比较从哪过来的和比较小，就选哪条路。
+* 到某个点只能是从上或从左过来的，只需比较从哪过来的和比较小，就选哪条路,且某个点的上或左，一定比这个点先算。
 [[1,3,1],
  [1,5,1],
  [4,2,1]]
@@ -1277,6 +1284,58 @@ int cowNums(int n){
     cout << sum_vec.back() << endl;
 }
 ```
+### 数组中等差递增子区间的个数
+* 至少三个元素才算等差递增子区间
+```
+//算以某数结尾的个数，因为以某数结尾的个数与前一个数存在规律,最后再相加
+ //A[i] - A[i-1] == A[i-1] - A[i-2]，那么 [A[i-2], A[i-1], A[i]] 构成一个等差递增子区间。而且在以 A[i-1] 为结尾的递增子区间的后面再加上一个 A[i]，一样可以构成新的递增子区间。所以A[i] = A[i-1] + 1;
+ void numberOfArithmeticSlices() {
+    std::vector<int> A = {0, 1, 2, 3, 4};
+    int n = A.size();
+    std::vector<int> dp;
+    dp.assign(n, 0);
+    for (int i = 2; i < n; i++) {
+        if (A[i] - A[i - 1] == A[i - 1] - A[i - 2]) {
+            dp[i] = dp[i - 1] + 1;
+        }
+    }
+    int total = 0;
+    for (int cnt : dp) {
+        total += cnt;
+    }
+    cout << total << endl;
+}
+```
+### 按平方数来分割整数(求最少平方数)
+* 1属于平方数
+```
+void square() {
+    const auto n = 4;
+    std::vector<int> sqVec;
+    auto i = 1;
+    auto i_sq = 1;
+    while(i_sq < n) {
+        sqVec.push_back(i_sq);
+        ++i;
+        i_sq = i * i;
+    }
+    std::vector<int> vec;
+    vec.assign(n+1, 0);
+    for(auto j = 1; j <= n; ++j) {
+        auto min = 10000;
+        for(auto it : sqVec){
+            if(it > j)break;
+            min = std::min(vec[j - it] + 1, min);
+        }
+        vec[j] = min;
+    }
+    cout << vec[n] << endl;
+}
+```
+#### 分割整数构成字母字符串(解码成字母)
+* 后面的解码个数与前面的个数有关
+* 当前数可解码成单个时，解码数等于前一个数的解码数，与前一个数组合才能解码时，解码数与往前走两位的解码数相同
+* 要考虑第一个数是0的情况
 
 #### noncopyable
 ```
