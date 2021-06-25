@@ -3042,13 +3042,15 @@ if (this_one_thing > this_other_thing &&
 17.参赛军团有多余，抽取一个军团复制做为npc军团对手
 18.决战书道具，相当于使用道具进攻，只是不显示战斗过程，可跳过小船打大船
 19.des减少  is_join:非中途加入的玩家
-20.LegionActCbzf::checkLgEf()死亡
+20.LegionActCbzf::checkLgEf()处理死亡
 21.给gac下届的信息
          ptr->set_event_id(Inter::event_legion_act_cbzf)                              
              ->set_run_delay_time(1)                                                  
              ->start(QTimerFunctionBindWithName(boostBind(LegionActCbzf::sendStatInfo,
   this, -2)))                                                                         
              ;  
+            
+22.哪方败，减哪方的兵力
 
 
 
