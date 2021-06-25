@@ -3026,7 +3026,7 @@ if (this_one_thing > this_other_thing &&
 1.cfg  obo, true,以开启时间为准，没有到才能用。false，以结束时间为准，没有结束才能用
 2.mng.cpp 300
 3.单服且没玩过，用os_time_list
-4.is_list，如果当前的定时结束时间没结束，用当前时间周期
+4.is_init，如果当前的定时结束时间没结束，用当前时间周期
 5.Open(true)/使用tow_way摘取gg数据
 6.布防开始匹配对手
 7.布防死时换位.死亡的玩家初始位置与当前死亡玩家位置互换
@@ -3035,9 +3035,20 @@ if (this_one_thing > this_other_thing &&
 10.每个阶段结束时，才判断大船是否还在，无大船则败
 11.DBLOG::strLogCbzf 104 103 可查实际发的排行奖励
 12.船败:打完玩家血量后，还要打船部分血量
-13.先填所有船的主将位，再填小兵位。剩下的可在布防处替换
-14.布防时，位置gas会检查，血量也是用服务器的，也会检查玩家id，应该是只用了玩家id，
+13.先填所有船的主将位，再填小兵位。若有剩下的武将,可在布防处替换上阵
+14.布防时，站位gas会检查，血量也是用服务器的，也会检查玩家id，应该是只用了玩家id，
 15.每三天会重取军团数据，参加的军团id不变
+16.state是什么，就表示已经执行了什么状态
+17.参赛军团有多余，抽取一个军团复制做为npc军团对手
+18.决战书道具，相当于使用道具进攻，只是不显示战斗过程，可跳过小船打大船
+19.des减少  is_join:非中途加入的玩家
+20.LegionActCbzf::checkLgEf()死亡
+21.给gac下届的信息
+         ptr->set_event_id(Inter::event_legion_act_cbzf)                              
+             ->set_run_delay_time(1)                                                  
+             ->start(QTimerFunctionBindWithName(boostBind(LegionActCbzf::sendStatInfo,
+  this, -2)))                                                                         
+             ;  
 
 
 
