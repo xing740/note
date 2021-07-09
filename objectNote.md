@@ -1,11 +1,92 @@
-## js
+### 通信
+#### gate
+1. 分别生成监听gac的服务器csvr和内部通信服svr
+2. 登录时与后台的验证，是gate负责
+#### game
+1.生成gm服(http,主要是修改游戏数据), user服(主动去连接gate的svr)
+
+
+### 战车
+1.请求的处理函数写在adapter.ts中
+2.道具在bag中(属于资源的一种)
+检查道具player.bags().num(type)
+3.log  backstage({......})
+4.资源是resource-alloc.ts进行处理，资源car会调用player.cars()进行处理,资源hero会调用player.heros(),item调用player.bags().
+5.Lgr.Instance().error(...) 打印提示日记
+6.定时器:Timer().set_run_delay(时间).run(执行函数);
+7.邮件:tag.keep 判断是否是要保留着的邮件。out:判断是否是大于邮件容量，要清的邮件，delete是主动删除标记
+8.cfg:之前前端是用一个返回码，去找对应的信息，现在是gas把要显示的信息先找到，再给gac
+```
+//带参数处理方法
+module.exports = {
+    "资源不足": "{0}不足",  //用{number}进行参数占位，多个参数时number往上加
+};
+{Common.StringFormat(CodeMessage.Message("资源不足"), ItemConfigureMgr.singleton().name(2)) }//打包时将对应的参数加上即可
+```
+
+### ts
+1. 用tsc将*.ts编译成*.js文件，用node运行*.js文
+2. 类:声明一样都class，class加expor则其它文件可调用，使用变量或函数要加this(除声明变量),成员函数不用加function，各成员都要被private或public修饰。
+
+3.any
+1.可以被赋值为任意类型，即使之前被赋值过.也可以赋值给任何值。可能是编译器看成any类型就不检查类型
+2.声明变量，但没有初始和类型.是any类型.
+3.可以访问any变量的任意属性和方法。即对它的任何操作和返回的内容的类型都是任意值
+
+4.let 块作用局，相当于声明局部变量. 初始化，但不加类型，相当于auto
+5.type x = "xx" | "yy";  声明x为联合类型的别名
+
+6.类型断言,告诉编译器是什么类型,更像强转，不像断言(它没有运行时的影响，只是在编译阶段起作用)
+```
+1. 尖括号 语法
+let someValue: any = "this is a string";
+let strLength: number = (<string>someValue).length;
+
+2. as 语法
+let someValue: any = "this is a string";
+let strLength: number = (someValue as string).length;
+```
+7.buffer
+1.将数据缓冲成二进制流
+
+8.类中的静态函数可以传this指针使用静态成员
+9.bignumber 进行数学运算的库
+10. 联合类型 type Index = 'a' | 'b' | 'c'; type是重命名
+11.索引签名，限制对象存的内容
+```
+声明一个索引签名
+const foo: {
+  [index: string]: { message: string };
+} = {};  下标是string，值是对象，有一个message属性.值的属性不能多也不能少
+
+foo['a'] = { mesages: 'some message' }; error!
+```
+12.nodejs是只有主线程在执行程序代码，定时器时间到时，会将回调放入事件循环，主线程只有在处理完当前的事件后，才会去处理另一个事件.主线程要尽量避免处理有阻塞的操作，比如大量的计算
+```
+eg:定时器是1毫秒打印，但主线程会先处理完循环后，才会去处理定时器的回调打印事件。
+setTimeout(() => {
+    console.log("time");
+}, 1);
+
+for(let i = 0; i < 9000000000; ++i);
+console.log(process.pid)
+```
+12. 如果 person 是一个对象，下面的语句不会创建 person 的副本： var x = person;  //x是person的引用 x 和 person 是同一个对象。对 x 的任何改变都将改变 person，因为 x 和 person 是相同的对象。
+13. 元组可存不同类型
+14. === 运算符需要类型和值同时相等,!== 值不相等或类型不相同
+15. 要返回undefine时，用void num，一般void 0, 不能直接返回undefine,因为undefine可以是变量，可被改写
+16. 已声明未初始化的值要直接访问的话，类型需要定义为undefined.
+17. < T extend x> 约束T的类型为x类型或继承至x类型
+18. websocket(一种网络通信协议)
+连接允许客户端和服务器之间进行全双工通信，以便任一方都可以通过建立的连接将数据推送到另一端。WebSocket 只需要建立一次连接，就可以一直保持连接状态。比轮询方式的不停建立连接效率更高.
+
+
+### js
 #### npm
 1. npm install会先检查node_modules目录中是否存在指定模块，如果存在就不安装，即便远程有新版本。如果.npm中有压缩包，但没有安装到node_modules中，也会
-重新下载
-2. 发出npm install命令,npm 向registry服务查询模块压缩包的网址,下载压缩包，存放在~/.npm目录解压压缩包到当前项目的node_modules目录
+重新下载。压缩包又不能用，当然要重新下载.下载时npm 向registry服务查询模块压缩包的网址,下载压缩包，将存放在~/.npm目录解压压缩包到当前项目的node_modules目录
 3. tsconfig.json  该文件存在的地方就是根目录
-可通过include和files指定编译的文件。如果rootDir打开了，则files指定的文件要在rootDir指定的目录中，exclude要打开，不打开会
-默认忽略./
+可通过include和files指定编译的文件。如果rootDir打开了，则files指定的文件要在rootDir指定的目录中，exclude要打开，不打开会默认忽略./
 4. npm install --production(生产模块)  不安装devdependencies中的模块,安装模块时，--dev表示添加到devdependencies中，即这个模块是开发时需要的，生产时不需要.全局安装的模块或是不加参数的npm install的模块，在 npm install初始化项目时，不会下载模块.
 
 #### 函数
@@ -21,7 +102,7 @@ class Greeter {
         return "Hello, " + this.greeting;
     }
 }
-
+执行一个匿名函数来执行创建对象的逻辑
 var Greeter = (function () {//执行一个匿名函数
     function Greeter(message) {//定义与ts类同名的函数，相当于构造函数
         this.greeting = message;
@@ -36,16 +117,45 @@ var Greeter = (function () {//执行一个匿名函数
 
 #### promise
 1.能方便的实现链式操作,传入的promise是第一个函数，之后的then传入的函数可理解为回调执行，promise的模式保证了顺序的执行。即第一个then是在传入promise的函数执行后再执行，之后的then都是上一个then传入的回调函数执行完后再执行
-2.是一个构造函数，new promise(fun(resolve, reject)),new之后，会立即执行传入的函数，resolve,和reject的执行时机是我们传入的函数决定的。
-3.resolve和reject主要是改变promise的状态函数返回的value会组then使用。
-4.then方法会创建一个新的promise,并返回，并根据上一个promise的状态，决定是将then传入的回调方法(回调方法会用到上一个promise返回的value)存入立即执行队列还是订阅队队列。立即执行队列并不是立即执行，而是之后没有接着then才会去执行。不论是异步和同步，都保证了then是顺序执行的。
-5.参考<https://juejin.cn/post/6844904144382197774/>
+2.是一个构造函数，new promise(fun(resolve, reject)),new之后，会立即执行传入的函数.
+3.resolve,和reject的执行时机是我们传入的函数实现中决定的.resolve和reject主要是改变promise的状态,状态不可逆，且只会改变一次，函数返回的value会给then使用。
+4.then可传入onFulfillment和onRejection函数，分别处理上一个promise的Fulfilled和rejected状态之后的事情. then方法会创建一个新的promise,并返回，并根据上一个promise的状态，决定是将then传入的回调方法(回调方法会用到上一个promise返回的value)存入立即执行队列还是订阅队队列(当是pending状态时)。立即执行队列并不是立即执行，而是之后没有接着then才会去执行。不论是异步和同步，都保证了then是顺序执行的。
+5.promise中传入的函数如果没有异步，直接调用了resolve函数，则状态会马上改变，不然会是pending状态，到第二个then时，不管是将then的函数参数传入哪个队列，都不会立即执行，而是再执行下一个then，这时的then会判断上一个then的状态是pending，所以会将函数传入订阅队列
+6.resolve静态方法内部是帮我们创建了一个状态为Fulfilled的promise对象并返回，如果resolve参数是promise，则直接返回该promise
+6.参考<https://juejin.cn/post/6844904144382197774/>
 
-#### async/await
-1.async 一个封装好的 Promise 对象，调用时得到一个 Promise 对象,遇到await时，会阻塞
-2.如果一个函数声明定义时加了async，调用时，如果需要async的函数执行完后。再执行下面的代码，则调用前要加await 
+#### async/wait
+1.async 一个封装好的 Promise 对象，调用时得到一个 Promise 对象,遇到await时，会执行await修饰的代码，然后让出所有权，如果await中都是同步代码，那加await并没有提高什么效率。
+await中有异步调用去获取某数据，await接下来的逻辑需要这个数据。此时的await才有意思，await会触发异步调用后，此时另一个线程在取数据，我让出所有权，不走await之后的代码，等异步取到数据后，再回到await处，执行后面的代码
+2.一定会返回promise,如果返回值看起来不是promise，会被稳式的包装在promise中.
+```
+async function foo() {
+   return 1
+}
+等价于:
+function foo() {
+   return Promise.resolve(1)
+}
+```
 
-#### || && 用于对象
+3.async中不含await，是同步运行，有await，就一样会异步执行
+```
+async function foo() {
+   await 1
+}
+等价于:
+function foo() {
+   return Promise.resolve(1).then(() => undefined)
+}
+```
+4.promose解决了回调地狱，async与promise一样，只是写起来更好理解,async依然是promise
+5.await是不管异步过程的reject(error)消息的，async函数返回的这个Promise对象的catch函数就负责统一抓取内部所有异步过程的错误,或用try_catch
+6.加了async关键字表示里面可能有异步代码，里面可以加await，如果都是同步代码，async显的多余
+7.async返回值可以不写
+8.如果一个数据是内嵌多个函数的最后一个函数才异步去取的，则不因只是在最后异步取数据时加await，从第一个取数据入口处起，调用的每个函数都要加await
+
+
+#### || && 用于对象（对象的真假可通过存在或不存在判断,好比数字的真假通过0非0判断
 1.【a || b】：a存在返回a，a不存在返回b  
 2.【a && b】：a存在返回b，a不存在返回a
 
@@ -67,12 +177,8 @@ var tm = person.time;  person.time = 1;
 #### try finally
 1.try是否捕捉到错误，finally后的代码都会执行
 
-#### any
-1.js是结构性语言，又因为会增加字段，所以结构确定不了，所以函数参数用any??
-any[],数组中的数据是any?
-
 #### map set 
-1. 一个 Object 的键只能是字符串或者 Symbols，但一个 Map 的键可以是任意值。
+1. 一个 Object 的键只能是字符串或者 Symbols，Map 的键可以是任意值。
 2. Map的键值对个数可以从 size 属性获取，而 Object 的键值对个数只能手动计算.
 3. set 可存不同类型
 
@@ -144,7 +250,6 @@ printLabel(myObj);//如果传入的是对象字面量，需要属性不能多也
 ```
 2. 对函数类型约束
 ```
-
 interface SearchFunc {
   (source: string, subString: string): boolean;
 }
@@ -187,7 +292,7 @@ interface Anmal {
     name : string
     eat (food:string) : void
 }
-//类实现接口要用implements , 子类必须实现接口里面声明的属性和方法
+//类实现接口要用implements , 子类必须实现接口里面声明的所有属性和方法
 class Laoshu implements Anmal{
     name : string
     constructor (name : string) {
@@ -238,85 +343,6 @@ c.reset();
 c.interval = 5.0;
 ```
 
-#### Math
-1. Math.ceil()向上舍入为最接近的整数；
-2. Math.floor()向下舍入为最接近的整数；
-3. Math.round()四舍五入为最接近的整数;
-
-#### 类型断言(它没有运行时的影响，只是在编译阶段起作用)
-1. 尖括号 语法
-```
-let someValue: any = "this is a string";
-let strLength: number = (<string>someValue).length;
-```
-2. as 语法
-```
-let someValue: any = "this is a string";
-let strLength: number = (someValue as string).length;
-```
-
-#### node.js
-1. Node.js 就是运行在服务端的 JavaScript。
-2. node *.js，执行js文件，tsc *.ts  将ts编译成js文件
-3. tsconfig.json文件中指定了用来编译这个项目的根文件(本身在的目录就是根目录)和编译选项。
-4. package.json.安装包时的记录
-5. inspect 以调试模式启动项目，inspect会监听一个端口，去连接这个端口，就可看到项目的环境 
-6. process 对象是一个 global （全局变量），提供有关信息，控制当前 Node.js 进程。作为一个对象，
-它对于 Node.js 应用程序始终是可用的，故无需使用 require()。
-
-#### 杂(zha)
-1. 
-```
-private add_memory<T extends item>(ni: T): void {//--约束T的类型为item类型或继承至item的类型
-
-```
-2. 
-如果 person 是一个对象，下面的语句不会创建 person 的副本：
-var x = person;  //x是person的引用
-x 和 person 是同一个对象。
-对 x 的任何改变都将改变 person，因为 x 和 person 是相同的对象。
-3. 元组可存不同类型
-4. === 运算符需要类型和值同时相等
-!== 值不相等或类型不相同
-在TS中，因为有了类型声明，不同类型间比较时会有报错：
-This condition will always return 'false' since the types '5' and '"5"' have no overlap.
-所以比较时,可用===，在编译时就判断了类型是否相同
-4. 要返回undefine时，用void num，一般void 0, 不能直接返回undefine,因为undefine可以是变量，可被改写
-5. 已声明未初始化的值要直接访问的话，类型需要定义为undefined.
-6. < T extend x> 约束T的类型为x类型或继承至x类型
-
-#### any
-1. any:没有声明其类型，也没有初始化.
-```
-变量的值会动态变动。
-let x: any = 2;    // 数字类型
-x = 'I am who I am';    // 字符串类型
-x = false;    // 布尔类型
-
-定义存储各种类型的数组。
-let arrayList: any[] = [2, false, 'fine'];
-arrayList[2] = 100;
-```
-
-## EventEmitter (事件触发和事件监听功能封装)
-1. Node.js 所有的异步 I/O 操作在完成时都会发送一个事件到事件队列。异步操作逻辑后，都有event.emit('some_event'); ?
-
-#### ts与c++
-1. 要传结构体式的数据时，ts是传对象的结构(eg:{x:xx, y:yy})
-2. x: Map<string, Function> = new Map();
-以c的角度是 Map<string, Function> x = new Map();
-
-##### websocket(一种网络通信协议)
-连接允许客户端和服务器之间进行全双工通信，以便任一方都可以通过建立的连接将数据推送到另一端。WebSocket 只需要建立一次连接，就可以一直保持连接状态。比轮询方式的不停建立连接效率更高.
-
-### zhanche
-#### io
-1. gate启动时，在main中创建gate_server,设置监听标识connect，有gac连接后，会得到一个io，也设置这个io的监听标识
-3. 奖励
-```
-ResourceAlloc.reslove(pid, rw, iorw);
-找处理函数，目前就bag,man,car
-```
 
 ## vscode
 #### task.json
@@ -1034,6 +1060,7 @@ public int singleNonDuplicate(int[] nums) {
 
 ### 组成整数的平方数的最少数量
 * 整数不断的减去一个平方数，直到为0，所有可能性同时找，
+* 用背包方法还快点
 
 #### 深度优先搜索
 * 深度优先搜索在得到一个新节点时立即对新节点进行遍历,同一时间只会判断一种可能性
@@ -1053,7 +1080,7 @@ public int singleNonDuplicate(int[] nums) {
 #### 搜索
 ### 计算在网格中从原点到特定点的最短路径长度
 * 在程序实现 BFS 时需要考虑以下问题：
-1. 队列：用来存储每一轮遍历得到的节点；
+1. 队列：用来存储每一轮遍历得到的节点；下一轮可走的所有结点
 2. 标记：对于遍历过的节点，应该将它标记，防止重复遍历。
 ```
 搜索左上到右下的最短长度
@@ -1197,7 +1224,6 @@ void hwDfs(std::vector<string> res, const string& str) {
 
 #### 动态规划
 * 利用历史记录，来避免我们的重复计算。而这些历史记录，我们得需要一些变量来保存，一般是用一维数组或者二维数组来保存。
-* 枚举多个，观察推导出n时的公式
 * 分析问题是否符合动态规则，有以下两个性质，再写出状态转移方程(利用当状态，计算下一状态)。
 eg:找钱:f(n) = min[f(n-1), f(n-5), f(n-11)] + 1;
 * 1.重叠子问题，可将一个大问题分成小问题，分别求解小问题的解就能推出大问题的解。2.最优子结构:大问题的最优解可由小问题的最优解得到
@@ -1287,9 +1313,9 @@ int cowNums(int n){
 ```
 ### 数组中等差递增子区间的个数
 * 如果一个数列至少有三个元素，并且任意两个相邻元素之差相同，则称该数列为等差数列
-* 注意是子区间，不是子序列
+* 注意是子区间(相邻)，不是子序列
 ```
- //A[i] - A[i-1] == A[i-1] - A[i-2]，那么 [A[i-2], A[i-1], A[i]] 构成一个等差递增子区间。而且在以 A[i-1] 为结尾的递增子区间的后面再加上一个 A[i]，一样可以构成新的递增子区间。所以A[i] = A[i-1] + 1;
+ //A[i] - A[i-1] == A[i-1] - A[i-2]，那么 [A[i-2], A[i-1], A[i]] 构成一个等差递增子区间。而且在以 A[i-1] 为结尾的递增子区间的后面再加上一个 A[i]，一样可以构成新的递增子区间。且dp[i] = dp[i-1] + 1;//dp[i]表示以A[i]结尾的等差递增子区间个数
  void numberOfArithmeticSlices() {
     std::vector<int> A = {0, 1, 2, 3, 4};
     int n = A.size();
@@ -1334,14 +1360,14 @@ void square() {
     cout << vec[n] << endl;
 }
 ```
-#### 分割整数构成字母字符串(解码成字母)
+#### 分割整数构成字母字符串(解码成字母)，求可解码个数
 * eg:"12"，可解码成两种，"AB","L";
 * 后面的解码个数与前面的个数有关
 * 每个数的解码有两种可能：1.自己构成解码数f(n) += f(n-1)，2.与前一个数构成解码数f(n) += f(n-2),前一个数为0，则不能与其构成解码数
 * 第一个字符为0，则不能解码，否则解码数为1
 
 #### 最长递增子序列
-* 是子序列
+* 是子序列(可不相邻)
 * 定义f(n),以某数结尾的最长递增子序列
 ```
 [10,9,2,5,3,7,101,18]
@@ -1388,6 +1414,7 @@ public int wiggleMaxLength(int[] nums) {
 ```
 #### 最长公共子序列
 * 给定两个字符串text1和text2，返回这两个字符串的最长公共子序列的长度。
+* 定义dp[i][j],当选到str1的第i个字符和str2的第j个字符时，最长公共子序列为dp[i][j]
 * 两个数比较有两种情况：1.相同.dp[i][j] = dp[i-1][j-1] + 1. 2.不同dp[i][j] = max(dp[i-1][j], dp[i][j-1]).不能理解为dp[i][j] = dp[i-1][j-1],因为dp[i-1][j-1],只表示当i从0到i-1,j从0到j-1中的最长子序列，还没有包括当到i到i和j到j的情况
 ```
 void maxDp() {
@@ -1408,7 +1435,7 @@ void maxDp() {
 #### 背包0-1
 * 找钱时，是每一个剩余没找的钱，可选择的对象(面额)是一样的,所以当前的状态可用之前已算出的状态.背包剩余的空间可选择的物品，与当前选择的物品有关。所以可反过来，让物品去选择空间，每个物品可选择的空间都是1到w;
 * 状态转移:dp[i][j],当选到第i个物品，空间为j时的价值.第一种情况，不可选第i个物品，dp[i][j] = dp[i-1][j](j不应再减去任务数，[i-1][j]是之前求出的状态,要结合实际).可选时，要
-较是选还是不选价值高。dp[i][j] = max(dp[i-1][j], dp[i-1][j-当前物品空间] + 当前物品价值);
+比较是选还是不选价值高。dp[i][j] = max(dp[i-1][j], dp[i-1][j-当前物品空间] + 当前物品价值);
 * 解题时，要分析题型是否属于背包问题,是01背包，完全背包，还是多重背包
 * 当二维状态改成一维时，要注意覆盖问题,eg:i-1=[2,3,4],，如果从前往后算，当计算i的3位时，需要i-1，2位的结果，但计算i的2位时已经覆盖了。
 ```
@@ -1482,9 +1509,10 @@ void maxNum() {
 #### 改变一组数的正负号使得它们的和为一给定数
 * [i][j]//前i个数中，合为j的个数，从vec中取出一个不大于v的数i，v-i=j,则能组成合为v的个数为dp[v](能组成本身的个数)+dp[j]的个数
 ```
-sum(P) - sum(N) = target
+(正)sum(P) - (负)sum(N) = target
 sum(P) + sum(N) = sum
 所以:sum(P) = (target + sum) / 2，
+求sum(p)是否存在
 
 public int findTargetSumWays(int[] nums, int S) {
     int sum = computeArraySum(nums);
@@ -1549,7 +1577,7 @@ j-vec[i] = x;
 
 eg:组成3
 当选1
-希望先选出给合,给组成111是因为之前组成了11,是同级，且用了上一个改变之后的状态，所以第二个循环是++
+希望先选出以下组合,能组成111是因为之前组成了11,是同级，且用了上一个改变之后的状态，所以第二个循环是++
 1
 11
 111
@@ -1575,7 +1603,7 @@ void zq() {
 
 #### noncopyable
 ```
-构造函数中开始了空间，其它构造函数若用默认的，没直接复制数据成员的地址，就有两个指针指向同一块空间
+构造函数中申请了空间，赋值构造函数若用默认的，会直接复制数据成员的地址，就有两个指针指向同一块空间
 class Matrix {
 public:
    _T* data;
