@@ -25,18 +25,18 @@ module.exports = {
 ```
 
 ### ts
-1. 用tsc将*.ts编译成*.js文件，用node运行*.js文
+1. 用tsc将*.ts编译成*.js文件，用node运行*.js
 2. 类:声明一样都class，class加expor则其它文件可调用，使用变量或函数要加this(除声明变量),成员函数不用加function，各成员都要被private或public修饰。
 
-3.any
+3. any
 1.可以被赋值为任意类型，即使之前被赋值过.也可以赋值给任何值。可能是编译器看成any类型就不检查类型
 2.声明变量，但没有初始和类型.是any类型.
 3.可以访问any变量的任意属性和方法。即对它的任何操作和返回的内容的类型都是任意值
 
-4.let 块作用局，相当于声明局部变量. 初始化，但不加类型，相当于auto
-5.type x = "xx" | "yy";  声明x为联合类型的别名
+4. let 块作用局，相当于声明局部变量. 初始化，但不加类型，相当于auto
+5. 联合类型 type Index = 'a' | 'b' | 'c'; type是重命名
 
-6.类型断言,告诉编译器是什么类型,更像强转，不像断言(它没有运行时的影响，只是在编译阶段起作用)
+6. 类型断言,告诉编译器是什么类型,更像强转，不像断言(c++的断言是判断是什么类型，不是就报错),它没有运行时的影响，只是在编译阶段起作用.
 ```
 1. 尖括号 语法
 let someValue: any = "this is a string";
@@ -46,13 +46,12 @@ let strLength: number = (<string>someValue).length;
 let someValue: any = "this is a string";
 let strLength: number = (someValue as string).length;
 ```
-7.buffer
+7. buffer
 1.将数据缓冲成二进制流
 
-8.类中的静态函数可以传this指针使用静态成员
-9.bignumber 进行数学运算的库
-10. 联合类型 type Index = 'a' | 'b' | 'c'; type是重命名
-11.索引签名，限制对象存的内容
+8. 类中的静态函数可以传this指针使用静态成员
+9. bignumber 进行数学运算的库
+10. 索引签名，限制对象存的内容
 ```
 声明一个索引签名
 const foo: {
@@ -61,7 +60,7 @@ const foo: {
 
 foo['a'] = { mesages: 'some message' }; error!
 ```
-12.nodejs是只有主线程在执行程序代码，定时器时间到时，会将回调放入事件循环，主线程只有在处理完当前的事件后，才会去处理另一个事件.主线程要尽量避免处理有阻塞的操作，比如大量的计算
+12. nodejs是只有主线程在执行程序代码，定时器时间到时，会将回调函数放入事件循环，主线程只有在处理完当前的事件后，才会去处理另一个事件.主线程要尽量避免处理有阻塞的操作，比如大量的计算
 ```
 eg:定时器是1毫秒打印，但主线程会先处理完循环后，才会去处理定时器的回调打印事件。
 setTimeout(() => {
@@ -71,7 +70,10 @@ setTimeout(() => {
 for(let i = 0; i < 9000000000; ++i);
 console.log(process.pid)
 ```
-12. 如果 person 是一个对象，下面的语句不会创建 person 的副本： var x = person;  //x是person的引用 x 和 person 是同一个对象。对 x 的任何改变都将改变 person，因为 x 和 person 是相同的对象。
+12. 如果 person 是一个对象，下面的语句不会创建 person 的副本
+```
+var x = person;  //x是person的引用 x 和 person 是同一个对象。对 x 的任何改变都将改变 person，因为 x 和 person 是相同的对象。
+```
 13. 元组可存不同类型
 14. === 运算符需要类型和值同时相等,!== 值不相等或类型不相同
 15. 要返回undefine时，用void num，一般void 0, 不能直接返回undefine,因为undefine可以是变量，可被改写
@@ -79,20 +81,12 @@ console.log(process.pid)
 17. < T extend x> 约束T的类型为x类型或继承至x类型
 18. websocket(一种网络通信协议)
 连接允许客户端和服务器之间进行全双工通信，以便任一方都可以通过建立的连接将数据推送到另一端。WebSocket 只需要建立一次连接，就可以一直保持连接状态。比轮询方式的不停建立连接效率更高.
-
-
-### js
-#### npm
-1. npm install会先检查node_modules目录中是否存在指定模块，如果存在就不安装，即便远程有新版本。如果.npm中有压缩包，但没有安装到node_modules中，也会
-重新下载。压缩包又不能用，当然要重新下载.下载时npm 向registry服务查询模块压缩包的网址,下载压缩包，将存放在~/.npm目录解压压缩包到当前项目的node_modules目录
-3. tsconfig.json  该文件存在的地方就是根目录
-可通过include和files指定编译的文件。如果rootDir打开了，则files指定的文件要在rootDir指定的目录中，exclude要打开，不打开会默认忽略./
-4. npm install --production(生产模块)  不安装devdependencies中的模块,安装模块时，--dev表示添加到devdependencies中，即这个模块是开发时需要的，生产时不需要.全局安装的模块或是不加参数的npm install的模块，在 npm install初始化项目时，不会下载模块.
-
-#### 函数
-1.因为js中的函数可以有属性和方法,所以即是函数也是对象。ts中的类，最终会解析成函数。箭头函数没有this，不适合定义对象方法。
-ts类解析成js
+19. npm install会先检查node_modules目录中是否存在指定模块，如果存在就不安装，即便远程有新版本。如果.npm中有压缩包，但没有安装到node_modules中，也会重新下载。压缩包又不能用，当然要重新下载.下载时npm 向registry服务查询模块压缩包的网址,下载压缩包，将存放在~/.npm目录解压压缩包到当前项目的node_modules目录
+20. tsconfig.json  该文件存在的地方就是根目录.可通过include和files指定编译的文件。如果rootDir打开了，则files指定的文件要在rootDir指定的目录中，exclude要打开，不打开会默认忽略./
+21. npm install --production(生产模块)  不安装devdependencies中的模块,安装模块时，--dev表示添加到devdependencies中，即这个模块是开发时需要的，生产时不需要.全局安装的模块或是不加参数的npm install的模块，在 npm install初始化项目时，不会下载模块.
+22. 因为js中的函数可以有属性和方法,所以即是函数也是对象。ts中的类，最终会解析成函数。箭头函数没有this，不适合定义对象方法。
 ```
+eg:ts类解析成js
 class Greeter {
     greeting: string;
     constructor(message: string) {
@@ -114,8 +108,7 @@ var Greeter = (function () {//执行一个匿名函数
     return Greeter;//返回与类同名的函数
 }());
 ```
-
-#### promise
+23. promise
 1.能方便的实现链式操作,传入的promise是第一个函数，之后的then传入的函数可理解为回调执行，promise的模式保证了顺序的执行。即第一个then是在传入promise的函数执行后再执行，之后的then都是上一个then传入的回调函数执行完后再执行
 2.是一个构造函数，new promise(fun(resolve, reject)),new之后，会立即执行传入的函数.
 3.resolve,和reject的执行时机是我们传入的函数实现中决定的.resolve和reject主要是改变promise的状态,状态不可逆，且只会改变一次，函数返回的value会给then使用。
@@ -124,10 +117,10 @@ var Greeter = (function () {//执行一个匿名函数
 6.resolve静态方法内部是帮我们创建了一个状态为Fulfilled的promise对象并返回，如果resolve参数是promise，则直接返回该promise
 6.参考<https://juejin.cn/post/6844904144382197774/>
 
-#### async/wait
+24. async/wait
 1.async 一个封装好的 Promise 对象，调用时得到一个 Promise 对象,遇到await时，会执行await修饰的代码，然后让出所有权，如果await中都是同步代码，那加await并没有提高什么效率。
-await中有异步调用去获取某数据，await接下来的逻辑需要这个数据。此时的await才有意思，await会触发异步调用后，此时另一个线程在取数据，我让出所有权，不走await之后的代码，等异步取到数据后，再回到await处，执行后面的代码
-2.一定会返回promise,如果返回值看起来不是promise，会被稳式的包装在promise中.
+2.await中有异步调用去获取某数据，await接下来的逻辑需要这个数据。此时的await才有意思，await会触发异步调用后，此时另一个线程在取数据，我让出所有权，不走await之后的代码，等异步取到数据后，再回到await处，执行后面的代码
+3.一定会返回promise,如果返回值看起来不是promise，会被稳式的包装在promise中.
 ```
 async function foo() {
    return 1
@@ -138,7 +131,7 @@ function foo() {
 }
 ```
 
-3.async中不含await，是同步运行，有await，就一样会异步执行
+4.async中不含await，是同步运行，有await，就一样会异步执行
 ```
 async function foo() {
    await 1
@@ -151,15 +144,14 @@ function foo() {
 4.promose解决了回调地狱，async与promise一样，只是写起来更好理解,async依然是promise
 5.await是不管异步过程的reject(error)消息的，async函数返回的这个Promise对象的catch函数就负责统一抓取内部所有异步过程的错误,或用try_catch
 6.加了async关键字表示里面可能有异步代码，里面可以加await，如果都是同步代码，async显的多余
-7.async返回值可以不写
+7.async修饰的函数返回值可以不写
 8.如果一个数据是内嵌多个函数的最后一个函数才异步去取的，则不因只是在最后异步取数据时加await，从第一个取数据入口处起，调用的每个函数都要加await
 
-
-#### || && 用于对象（对象的真假可通过存在或不存在判断,好比数字的真假通过0非0判断
+25. ||,&& 用于对象(对象的真假可通过存在或不存在判断,好比数字的真假通过0非0判断)
 1.【a || b】：a存在返回a，a不存在返回b  
 2.【a && b】：a存在返回b，a不存在返回a
 
-#### Getter 和 Setter
+26. Getter 和 Setter
 1.允许属性和方法的语法相同
 ```
 var person = {
@@ -174,15 +166,15 @@ var person = {
 var tm = person.time;  person.time = 1;
 ```
 
-#### try finally
+27. try finally
 1.try是否捕捉到错误，finally后的代码都会执行
 
-#### map set 
+28. map,set 
 1. 一个 Object 的键只能是字符串或者 Symbols，Map 的键可以是任意值。
 2. Map的键值对个数可以从 size 属性获取，而 Object 的键值对个数只能手动计算.
 3. set 可存不同类型
 
-#### 任务
+28. 任务
 ##### zhanche
 1. 配置上放了init update complect函数，调用时传入玩家ptr和参数
 2. 每创建一个新任务就调用init初始化任务记录。
@@ -228,7 +220,7 @@ private:
     }
 };
 ```
-#### 字面量
+29. 字面量
 在计算机科学中，字面量是用于表达源代码中一个固定值的表示法.(暂理解成临时变量)
 ```
 std::string x = "hello"; "hello"就是字符串字面量
@@ -303,8 +295,7 @@ class Laoshu implements Anmal{
     }
 ```
 5. 接口继承
-接口可互相继承(注意：不是类与接口间的继承)
-一个接口可以继承多个接口，创建出多个接口的合成接口。
+接口可互相继承(注意：不是类与接口间的继承),一个接口可以继承多个接口，创建出多个接口的合成接口。
 ```
 interface Shape {
     color: string;
@@ -316,7 +307,7 @@ interface Square extends Shape, PenStroke {
     sideLength: number;
 }
 
-let square = <Square>{};//(使用时有个<>)
+let square = <Square>{};//(使用时有个<>,可能就是断言的作用)
 square.color = "blue";
 square.sideLength = 10;
 square.penWidth = 5.0;
