@@ -1,15 +1,18 @@
 import os
-import sys
-from ctypes import *
 import subprocess
 
-user32 = windll.LoadLibrary('user32.dll')
- 
-#user32.LockWorkStation()
-os.chdir('F:\\git_code\\note')
-subprocess.call(['git', 'add', '*'])
-subprocess.call(['git', 'commit', '-am', '//tick sync'])
-subprocess.call(['git', 'push'])
-subprocess.call(['git', 'status'])
-print("fadsf")
-#t input()
+base_dir = 'F:\git_code'
+
+def doGit():
+    subprocess.call(['git', 'add', '*'])
+    subprocess.call(['git', 'commit', '-am', '//tick sync'])
+    subprocess.call(['git', 'push'])
+    subprocess.call(['git', 'status'])
+
+if __name__ == "__main__":
+	list = os.listdir(base_dir)
+	for it in list:
+		if it[0] == '.':
+			continue
+		os.chdir(base_dir + '\\' + it)
+		doGit()
