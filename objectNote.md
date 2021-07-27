@@ -1685,4 +1685,7 @@ void func()
   //work_finished_on_block_exit的方法保证了，只要不挂，就一样能执行到.要挂了，执不执行都无所谓了
 }
 ```
+
+win
+1.使用创建基本任务。
       
