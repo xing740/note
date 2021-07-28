@@ -227,6 +227,55 @@ std::string x = "hello"; "hello"就是字符串字面量
 let x = {color: "blue", len: 2}; 右边的{...}就是对象字面量
 ```
 
+30. 奖励池
+random: {imit(限制, 需要才配置)
+        way:"all",//随机类型 all:所有奖池都抽，抽的次数取决于其中的pick. random:先要抽取奖池，抽的次数是opt中的times.
+        opt:{times:1, putback:true},//选项, all类型配置opt:{}或者没有这个字段都可, random类型opt:{times:次数需要>0, putback:可以不写,默认false, 不放回}
+        pool:[
+            {
+                choose:10000,//选择该奖池的权重//way的值等于all的时候, 这个值写不写无所谓
+                pick:1,//抽取次数 >0  declare这个奖池中的奖励的抽取个数
+                declare:[
+                    {
+                        name: "item",
+                        types: 1,
+                        num: 500,//以上几个字段都是奖励描述//请对应英雄或者道具的奖励说明对应配置即可
+                        weight: 1000,//抽取该奖励的权重
+                        putback:true,//抽取完之后是否放回, 可以不写, 不写默认false(不放回)
+                        limit: function(player) {//限制//可以不配置
+                            return player.war().process > 100;
+                        }
+                    },
+                    ...
+                    ...
+                ]
+            },
+            ...
+            ...
+        ]
+    };
+1. 先判断way的类型，如果是random，先抽取出奖池
+2. 抽取出的奖池，都会有机会抽里面的奖励
+3. 权重相加，在0到总权重中随机一个数。大于这个数的权重就是抽到的奖励，如果是不放回，要把奖励踢出，总权重也要相应的减去。
+```
+for (let i = 0; i < opt.times; ++i) {
+                let rv = Common.RandomHalfOpenBetween(0, total);
+                let cal: number = 0;
+                for (let item of s) {
+                    cal += item.weight;
+                    if (rv < cal) {
+                        arr.push(item);
+                        if (!item.putback) {
+                            s.delete(item);
+                            total -= item.weight;
+                        }
+                        break;
+                    }
+                }
+            }
+```
+
+zcjilu
 #### 接口(implements是实现，extends是继承)
 1. 对参数进行约束
 ```
@@ -1688,5 +1737,38 @@ void func()
 
 win
 1.使用创建基本任务。
-sdfa
-      
+
+
+竞技宝箱
+.\arena\box.js 
+module.exports = 
+{
+    id:宝箱id //至少是两位数，个位数是品质，比如：12,则宝箱id是12，品质是2
+    weight:权重
+    random: {
+        way:"all/random",
+        opt:{times:1, putback:true},//选项, all类型配置opt:{}或者没有这个字段都可, random类型opt:{times:次数需要>0, putback:可以不写,默认false, 不放回}
+        pool:[
+            {
+                choose:10000,//选择该奖池的权重//way的值等于all的时候, 这个值写不写无所谓
+                pick:1,//抽取次数 >0
+                declare:[
+                    {
+                        name: "item",
+                        types: 1,
+                        num: 500,
+                        weight: 1000,//抽取该奖励的权重
+                        putback:true,//抽取完之后是否放回, 可以不写, 不写默认false(不放回)
+                        limit: function(player) {//限制//可以不配置
+                            return player.war().process > 100;
+                        }
+                    },
+                    ...
+                    ...
+                ]
+            },
+            ...
+            ...
+        ]
+    }
+}
