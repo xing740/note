@@ -815,12 +815,13 @@ epoll 因为采用 mmap的机制, 使得 内核socket buffer和 用户空间的 
 callback函数来处理 socket 数据时, 数据已经从内核层 "自动" 到了用户空间,
 
 359.开
-和mysql
 验证的用：mongo   /data/mongodb/mongodb_master 执行, ./auth_mongodb_start_master.py   
 没有验证的，例222机，在 /data/fytx2_test_p017a/mongodb/      python noauth_mongodb_start_master.py  (注意执行的文件不一样)
 
 mysql  /data/mysql/mysql_master, 执行./start_mysql_master.py 
 wiki   /data/game-wiki/xl_moin0.9.9/wikiserver.py       screen -S xxx
+
+登录服在自己服的:/data/lsfz_test_s001a/py_service   ./login_service.sh restart
 
 361. static
 全局：
