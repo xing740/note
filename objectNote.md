@@ -276,6 +276,21 @@ for (let i = 0; i < opt.times; ++i) {
 ```
 
 zcjilu
+
+31. 
+```
+let x = {
+	x:1,
+	y:2,
+};
+
+interface tx {
+	x:number;
+}
+let xx: tx = x;//xx打印是{ x: 1, y: 2 },但tx只有x，所以可以防问x，防问y时也可得到y的值，但会报错
+console.log(xx.y);
+
+```
 #### 接口(implements是实现，extends是继承)
 1. 对参数进行约束
 ```
@@ -1771,4 +1786,57 @@ module.exports =
             ...
         ]
     }
+}
+
+
+.\arena\base.js 
+module.exports = 
+{
+    "fightTimes":每日挑战次数
+    "adTimes":每日广告次数
+    "addTimes":看广告获得的挑战次数
+    "kingReward":[//竞技之王奖励
+            {
+                    id:        
+                    limit:积分限制
+                    reward:
+            },
+            {},....
+    ],
+    "rankReward:"[ //排行奖励
+            [rk1, rk2, 奖励, 广告奖励],//eg[2,5,[],[]] 则2到5名使用该奖励
+            .....
+    ]
+    "randomBox":[
+        {
+            id:宝箱id //至少是两位数，个位数是品质，比如：12,则宝箱id是12，品质是2
+            weight:抽取该宝箱的权重
+            random: {奖励池配置
+                        way:"all/random",
+                        opt:{times:1, putback:true},//选项, all类型配置opt:{}或者没有这个字段都可, random类型opt:{times:次数需要>0, putback:可以不写,默认false, 不放回}
+                        pool:[
+                            {
+                                choose:10000,//选择该奖池的权重//way的值等于all的时候, 这个值写不写无所谓
+                                pick:1,//抽取次数 >0
+                                declare:[
+                                    {
+                                        name: "item",
+                                        types: 1,
+                                        num: 500,
+                                        weight: 1000,//抽取该奖励的权重
+                                        putback:true,//抽取完之后是否放回, 可以不写, 不写默认false(不放回)
+                                        limit: function(player) {//限制//可以不配置
+                                            return player.war().process > 100;
+                                        }
+                                    },
+                                    ...
+                                    ...
+                                ]
+                            },
+                            ...
+                            ...
+                        ]
+            }
+        }
+    ]
 }

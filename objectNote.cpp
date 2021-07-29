@@ -3058,3 +3058,10 @@ if (this_one_thing > this_other_thing &&
 
 
 isfasdf
+cd时间
+宝箱:初始状，cd状，已领取 
+领取竞技宝箱奖励（打开也用这条)
+id；
+return box
+
+delebox
