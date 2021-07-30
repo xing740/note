@@ -1280,6 +1280,39 @@ C++:因为有bool 类型 sizeof（1 == 1） == sizeof（true） 按照bool类型
 
 431.如果gg没有连世界服，会每一分钟去后台请求世界服信息。gg的世界服信息是主动去台后请求的
 jilu
+
+432.计算机通过第一个字段判断一个单位编码占用的字节数
+第一位为0时，为单字节
+前三位为110时，为双字节
+前四位为1110时，为三字节
+前五位为11110时，为四字节
+前六位为111110时，为五字节
+前七位为1111110时，为六字节
+```
+所以分别取出第一到第七位进行判断
+size_t word_len(const char* words, size_t max_len) {
+  const auto v = *words;
+  size_t leg = 1;
+  if ((v & 0xe0) == 0xc0) {
+    leg = 2;
+  }
+  else if ((v & 0xf0) == 0xe0) {
+    leg = 3;
+  }
+  else if ((v & 0xf8) == 0xf0) {
+    leg = 4;
+  }
+  else if ((v & 0xfc) == 0xf8) {
+    leg = 5;
+  }
+  else if ((v & 0xfe) == 0xfc) {
+    leg = 6;
+  }
+  return (std::min)(leg, max_len);
+}
+	
+```
+
 1.引用作为递归参数，为什么可以多次引用 
 
 

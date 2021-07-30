@@ -1675,6 +1675,88 @@ Matrix b = a; //此时就有两个指针指向同一块空间，除非自实现�
 或者禁用类的拷备构造和赋值构造，继承boost::noncopyable
 基类的构造函数，不论派生类中是否自实现调用,什么继承方式，最终都会调用
 ```
+#### 设计模式
+### 负责链
+```
+ const httpErrorHandler = (error) => {
+   const errorStatus = error.response.status;
+   if (errorStatus === 400) {
+     console.log('你是不是提交了什么奇怪的东西？');
+   }
+   
+   if (errorStatus === 401) {
+     console.log('需要先登陆！');
+   }
+   
+   if (errorStatus === 403) {
+     console.log('是不是想偷摸干坏事？');
+   }
+   
+   if (errorStatus === 404) {
+     console.log('这里什么也没有...');
+   }
+};
+```
+1. 单一职责：就是只做一件事，上式把对所以错误的处理写在一个函数中，当需要增加或修改代码时，就需要阅读所以代码。
+2. 开放封闭原则：对已写好的核心逻辑就不要去改动。但能因需要的增加而扩充原本功能。上式当增加需求时，会修改原来正常的逻辑，容易导致原本正常的代码出错.
+
+封装后
+```
+class Chain {
+  constructor(handler) {
+    this.handler = handler;
+    this.successor = null;
+  }
+
+  setSuccessor(successor) {
+    this.successor = successor;
+    return this;
+  }
+
+  passRequest(...args) {
+    const result = this.handler(...args);
+    if (result === 'next') {
+      return this.successor && this.successor.passRequest(...args);
+    }
+    return result;
+  }
+}
+
+好好感受下列代码，当功能扩展时，只要在原有代码的基础上加两行，几乎不可能造成原有逻辑的错误,因为根本没有动原来逻辑
+连if(result === 'next')这个逻辑都没有暴露出来
+
+const httpErrorHandler = (error) => {
+  const chainRequest400 = new Chain(response400);
+  const chainRequest401 = new Chain(response401);
+  const chainRequest403 = new Chain(response403);
+  const chainRequest404 = new Chain(response404);
+
+  chainRequest400.setSuccessor(chainRequest401);
+  chainRequest401.setSuccessor(chainRequest403);
+  chainRequest403.setSuccessor(chainRequest404);
+
+  chainRequest400.passRequest(error);
+};
+
+```
+### 装饰器
+1. 解决频繁修改的需要，即一个东西需要时常的进行打扮装饰。给原本的功能改增删。理解装饰这个词
+```
+const publishArticle = () => {
+  console.log('发布文章');
+};//本身只有身发文章的功能，以下两个装饰器增加了发现到微博和空间的功能
+
+const publishWeibo = (publish) => (...args) => {
+  publish(args);
+  console.log('发 微博 动态');
+};
+const publishQzone = (publish) => (...args) => {
+  publish(args);
+  console.log('发 QQ空间 动态');
+};
+
+const publishArticleAndWeiboAndQzone = publishWeibo(publishQzone(publishArticle));
+```
 #### skill
 ### 根据不同类型，执行不同的逻辑，我可能会在一个函数中实现，逻辑会很多很长，以下是构建类时，就确定了要执行的方法
 ```
