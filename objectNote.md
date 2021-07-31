@@ -7,15 +7,8 @@
 
 
 ### 战车
-1.请求的处理函数写在adapter.ts中
-2.道具在bag中(属于资源的一种)
-检查道具player.bags().num(type)
-3.log  backstage({......})
-4.资源是resource-alloc.ts进行处理，资源car会调用player.cars()进行处理,资源hero会调用player.heros(),item调用player.bags().
-5.Lgr.Instance().error(...) 打印提示日记
-6.定时器:Timer().set_run_delay(时间).run(执行函数);
-7.邮件:tag.keep 判断是否是要保留着的邮件。out:判断是否是大于邮件容量，要清的邮件，delete是主动删除标记
-8.cfg:之前前端是用一个返回码，去找对应的信息，现在是gas把要显示的信息先找到，再给gac
+7. 邮件:tag.keep 判断是否是要保留着的邮件。out:判断是否是大于邮件容量，要清的邮件，delete是主动删除标记
+8. cfg:之前前端是用一个返回码，去找对应的信息，现在是gas把要显示的信息先找到，再给gac
 ```
 //带参数处理方法
 module.exports = {
@@ -25,9 +18,6 @@ module.exports = {
 ```
 
 ### ts
-1. 用tsc将*.ts编译成*.js文件，用node运行*.js
-2. 类:声明一样都class，class加expor则其它文件可调用，使用变量或函数要加this(除声明变量),成员函数不用加function，各成员都要被private或public修饰。
-
 3. any
 1.可以被赋值为任意类型，即使之前被赋值过.也可以赋值给任何值。可能是编译器看成any类型就不检查类型
 2.声明变量，但没有初始和类型.是any类型.
@@ -49,9 +39,11 @@ let strLength: number = (someValue as string).length;
 7. buffer
 1.将数据缓冲成二进制流
 
-8. 类中的静态函数可以传this指针使用静态成员
-9. bignumber 进行数学运算的库
-10. 索引签名，限制对象存的内容
+8. 类class
+1. 类中的静态函数可以传this指针使用静态成员
+
+10. bignumber 进行数学运算的库
+11. 索引签名，限制对象存的内容
 ```
 声明一个索引签名
 const foo: {
@@ -79,8 +71,6 @@ var x = person;  //x是person的引用 x 和 person 是同一个对象。对 x �
 15. 要返回undefine时，用void num，一般void 0, 不能直接返回undefine,因为undefine可以是变量，可被改写
 16. 已声明未初始化的值要直接访问的话，类型需要定义为undefined.
 17. < T extend x> 约束T的类型为x类型或继承至x类型
-18. websocket(一种网络通信协议)
-连接允许客户端和服务器之间进行全双工通信，以便任一方都可以通过建立的连接将数据推送到另一端。WebSocket 只需要建立一次连接，就可以一直保持连接状态。比轮询方式的不停建立连接效率更高.
 19. npm install会先检查node_modules目录中是否存在指定模块，如果存在就不安装，即便远程有新版本。如果.npm中有压缩包，但没有安装到node_modules中，也会重新下载。压缩包又不能用，当然要重新下载.下载时npm 向registry服务查询模块压缩包的网址,下载压缩包，将存放在~/.npm目录解压压缩包到当前项目的node_modules目录
 20. tsconfig.json  该文件存在的地方就是根目录.可通过include和files指定编译的文件。如果rootDir打开了，则files指定的文件要在rootDir指定的目录中，exclude要打开，不打开会默认忽略./
 21. npm install --production(生产模块)  不安装devdependencies中的模块,安装模块时，--dev表示添加到devdependencies中，即这个模块是开发时需要的，生产时不需要.全局安装的模块或是不加参数的npm install的模块，在 npm install初始化项目时，不会下载模块.
@@ -171,7 +161,6 @@ var tm = person.time;  person.time = 1;
 
 28. map,set 
 1. 一个 Object 的键只能是字符串或者 Symbols，Map 的键可以是任意值。
-2. Map的键值对个数可以从 size 属性获取，而 Object 的键值对个数只能手动计算.
 3. set 可存不同类型
 
 28. 任务
@@ -275,8 +264,6 @@ for (let i = 0; i < opt.times; ++i) {
             }
 ```
 
-zcjilu
-
 31. 
 ```
 let x = {
@@ -291,6 +278,19 @@ let xx: tx = x;//xx打印是{ x: 1, y: 2 },但tx只有x，所以可以防问x，
 console.log(xx.y);
 
 ```
+32. enum
+1. 加const后，编译后直接替换，不加时.编译过后生成key和value互相对应的key/value,不管用key和value都能取到对应的值，但用的内在较多。
+```
+eg:
+ const enum responseStatus {
+  error = 400,
+  success = 200,
+}
+console.log(responseStatus[400])// 加const 后，会报错
+console.log(responseStatus.error)// 编译成js后，是// console.log(400)
+```
+zcjilu
+
 #### 接口(implements是实现，extends是继承)
 1. 对参数进行约束
 ```
