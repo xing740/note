@@ -1,7 +1,3 @@
-1.在c/c++中，为了避免同一个文件被include多次，有两种方式：一种是#ifndef方式，一种是#pragma once方式(在头文件的最开始加入)。 #pragma once方式产
-生于#ifndef之后。#ifndef方式受c/c++语言标准的支持，不受编译器的任何限制；而#pragma once方式有些编译器不支持(较老编译器不支持，如gcc 3.4版本之前
-  不支持#pragmaonce)，兼容性不够好。#ifndef可以针对一个文件中的部分代码，而#pragma once只能针对整个文件。
-
 4.::可为全局作用域符号：当全局变量在局部函数中与其中某个变量重名，那么就可以用::来区分如：
 例：
 char    zhou;    //全局变量   如果全局变量在包含的文件中，也可以这么用
@@ -3092,12 +3088,3 @@ if (this_one_thing > this_other_thing &&
 
 
 
-
-isfasdf
-cd时间
-宝箱:初始状，cd状，已领取 
-领取竞技宝箱奖励（打开也用这条)
-id；
-return box
-
-delebox
