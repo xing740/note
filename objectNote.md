@@ -163,6 +163,7 @@ var tm = person.time;  person.time = 1;
 1. 一个 Object 的键只能是字符串或者 Symbols，Map 的键可以是任意值。
 3. set 可存不同类型
 
+
 28. 任务
 ##### zhanche
 1. 配置上放了init update complect函数，调用时传入玩家ptr和参数
@@ -1834,3 +1835,8 @@ void func()
 win
 1.使用创建基本任务。
 
+wt:
+
+布阵：
+1.其它阵上没有同车，同配件，同甲板
+2.车存在，配件存在，数量《=孔位，甲板存在，布阵的位置对,载重
