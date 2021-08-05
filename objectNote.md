@@ -18,6 +18,7 @@ module.exports = {
 ```
 
 ### ts
+1.v8的Array.sort(),<=10用插入排序，其它用快速排序(不稳定排序，适合排序无序，最差时的效率是排序有序数列)
 3. any
 1.可以被赋值为任意类型，即使之前被赋值过.也可以赋值给任何值。可能是编译器看成any类型就不检查类型
 2.声明变量，但没有初始和类型.是any类型.
@@ -37,7 +38,8 @@ let someValue: any = "this is a string";
 let strLength: number = (someValue as string).length;
 ```
 7. buffer
-1.将数据缓冲成二进制流
+0. JavaScript 语言自身只有字符串数据类型，没有二进制数据类型。但在处理像TCP流或文件流时，必须使用到二进制数据。
+1. 因此在 Node.js中，定义了一个 Buffer 类，该类用来创建一个专门存放二进制数据的缓存区。每当需要在 Node.js 中处理I/O操作中移动的数据时，就有可能使用 Buffer 库。原始数据存储在 Buffer 类的实例中。一个 Buffer 类似于一个整数数组，但它对应于 V8 堆内存之外的一块原始内存。
 
 8. 类class
 1. 类中的静态函数可以传this指针使用静态成员
@@ -630,6 +632,12 @@ set logging off //关闭记录功能
 * #define BSON_ARRAY(x) ((::mongo::BSONArrayBuilder() << x).arr())
 * #define BSON(x) ((::mongo::BSONObjBuilder(64) << x).obj())
 * addFields 操作对象是空的bsonObj
+
+### 索引
+1. 索引不是独立于表的另外的元素，属于表中的元素.将某个数做为索引，可按递增递减排序
+2. 可提高查找效率。
+3. 索引可设置成唯一或非唯一。
+4. 多重索引，eg:以第一个索引做递增减排序，当索引相同时，再以第二个索引进行比较排序
 
 ### insert
 ```
@@ -1843,3 +1851,13 @@ wt:
 
 key: 
 pid
+
+
+1.插入新元素排序,  
+  1.key为新元素，排序完退出,使用传入的比较函数.
+
+2.修改原有元素.
+ 1.不知道修改的元素，插入排序,排序有一次修改就退出
+
+3.查找元素。
+二分查找
