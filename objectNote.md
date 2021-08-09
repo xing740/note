@@ -1872,3 +1872,28 @@ pid
 构造：
 1.空
 2.obj数据   
+
+1.当前积分段位
+2.当前段位取新段位
+3.段位的积分
+[当前段位，]
+
+dan:[
+    [ 积分下限(必须从高到低配), { dan:当前段位, newDan:新赛季对应的段位}],
+    [],
+    ...
+]
+1-100
+100 -200
+200 - 300
+
+1 100 200
+
+
+1.game: playercollect.LegionActCbzf 全清
+2.game: legion_act_cbzf  保留母服
+
+
+类对象不new也能使用
+
+game: 保留母服DBN::LegionActCbzf, key为2的表，其它都清. player_collect的LegionActCbzf字段都清
