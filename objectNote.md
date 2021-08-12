@@ -1894,6 +1894,19 @@ dan:[
 2.game: legion_act_cbzf  保留母服
 
 
-类对象不new也能使用
+调用gate.svr.send_to_game
 
-game: 保留母服DBN::LegionActCbzf, key为2的表，其它都清. player_collect的LegionActCbzf字段都清
+
+创建一个svr，一个c_svr去连svr，  c_svr可取标准输入
+
+1.定时查看配置md5，不一样就判断标记要不要执行
+2.没有文件就清除定时器
+{
+    pid:
+    proto:
+    debug_done:
+}
+
+1.inital 读取配置，如果文件不存在，退出，
+2.存在   创建定时器
+3.如果为false  发现且 设为true,
