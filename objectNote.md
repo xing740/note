@@ -1909,4 +1909,13 @@ dan:[
 
 1.inital 读取配置，如果文件不存在，退出，
 2.存在   创建定时器
-3.如果为false  发现且 设为true,
+3.如果为false  发现且 设为trueoooo,
+
+
+
+sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
+
+作者：岸边露伴一动不动
+链接：https://www.jianshu.com/p/556ff130fc65
+来源：简书
+著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。

@@ -7,7 +7,7 @@ int main()
         tmp+= std::to_string(i);
         tmp+= " ";
         cout << tmp << endl;
-    }
+    }jjjjjjjj
 
     return 0;
     //1111 0000
