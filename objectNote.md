@@ -1913,9 +1913,4 @@ dan:[
 
 
 
-sh -c "$(wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -O -)"
-
-作者：岸边露伴一动不动
-链接：https://www.jianshu.com/p/556ff130fc65
-来源：简书
-著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。
+1.不要刷的太快，让他看战报  
