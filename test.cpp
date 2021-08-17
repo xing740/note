@@ -7,7 +7,12 @@ int main()
         tmp+= std::to_string(i);
         tmp+= " ";
         cout << tmp << endl;
-    }jjjjjjjj
+    }
+    int x = 3;
+    if(x == 3) 
+        cout << "12" << endl;
+    else if(x == 3)
+        cout << "13" << endl;
 
     return 0;
     //1111 0000
