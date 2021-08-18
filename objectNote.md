@@ -1913,5 +1913,28 @@ dan:[
 
 
 
-记录战斗信息
-结算
+[
+    {
+        "id":
+        "name:
+        "cPart":[{id: , indensify: },....]//战车配件
+        "deck":[[{id: , indensify:}, ....],[]]//甲板
+        "dPart":[[{id: , indensify: },....],[]]//战车甲板配件
+        "attri":[]  //战斗属性
+    }
+    cPart:[[id, { "indensify": }]]
+]
+
+1.配件信息要保存到布阵中，
+2.配件信息升级时要同步到配件中。
+3.
+
+1.判重
+2.每
+
+car: part
+deck1: part
+deck2: part
+
+type: 
+[{id: ,pos:, type:, indensify:}, {},...]
