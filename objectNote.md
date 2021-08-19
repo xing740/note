@@ -1911,18 +1911,27 @@ dan:[
 2.存在   创建定时器
 3.如果为false  发现且 设为trueoooo,
 
+竞技宝箱，打完得
 
 
 [
     {
-        "id":
-        "name:
-        "cPart":[{id: , indensify: },....]//战车配件
-        "deck":[[{id: , indensify:}, ....],[]]//甲板
-        "dPart":[[{id: , indensify: },....],[]]//战车甲板配件
-        "attri":[]  //战斗属性
-    }
-    cPart:[[id, { "indensify": }]]
+        id:配成负的
+        fm: [
+        {//第一个布阵
+            "car":车id
+            "name:
+            "cPart":[{id: , indensify: },....]//战车配件
+            "deck":[[{id: , indensify:}, ....],[]]//甲板
+            "dPart":[[{id: , indensify: },....],[]]//战车甲板配件
+            "attri":[]  //战斗属性
+        },
+        {},第二个布阵
+        {}
+        ]
+    },
+    {},
+    ..
 ]
 
 1.配件信息要保存到布阵中，
@@ -1938,3 +1947,37 @@ deck2: part
 
 type: 
 [{id: ,pos:, type:, indensify:}, {},...]
+
+匹配对手：
+
+1.之前是否已有对手
+2.次数
+3.
+
+算npc
+npc: 算玩家属性，调属性
+
+保存对手
+
+
+fight
+
+
+{ ePid:,  eFm: { attri?: }, eHp[], myHp[], }
+{
+    over:是否结算战斗，win:0:攻方，1:守方, myHp:[idx, hp], eHp:[idx, hp], other:客户端自用数据
+}
+
+resp:{ info:[{pid:,score:分, name:名}，..] tops:[{car:xx, parts:[]},..]//前三信息,own:{pid:,score:, name:,rk:自己排名(-1不在排名中，正确就加1}, e(对手数据):{ pid:npc为负， fm:[], myHp:斗], eHp:[], other: any }
+fm:与布阵数据相同，数据中的attri字段只有npc有
+myHp、eHp:字段为空，或对应的idx为空，表示没参加过战
+
+
+
+npc:连输， 匹配不到
+前50，随机，其它积分区间
+
+50:    rk
+[0, rk), (rk, 50/length];
+
+[score-500:idx , score+500:idx]
