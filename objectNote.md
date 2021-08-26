@@ -292,6 +292,17 @@ eg:
 console.log(responseStatus[400])// 加const 后，会报错
 console.log(responseStatus.error)// 编译成js后，是// console.log(400)
 ```
+
+33. const readonly
+const 修饰变量
+readonly 修饰属性
+```
+const xxx = { x: 1, y: 2};
+xxx.x = 2; //x 是属于，const不能修改，所以可以改
+console.log(xxx);
+
+xxx = {};//xxx是变量，被const修饰，不能改
+```
 zcjilu
 
 #### 接口(implements是实现，extends是继承)
@@ -1989,3 +2000,14 @@ npc:连输， 匹配不到
 2.总积分找对应的等级，
 3.找当前等级到目标等级的总消耗
 [id, [localId, ..]]
+
+module.exports = [[
+    {//0级
+        exp://达到当前级的总经验
+        cost:
+    },
+    ...
+]
+[
+
+]
