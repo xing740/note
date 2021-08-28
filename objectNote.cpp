@@ -3096,3 +3096,23 @@ if (this_one_thing > this_other_thing &&
 扫荡
 req:{id:关卡id, times:次数}
 resp{ rw:[] }
+
+配件强化：
+0.1.2
+[0,0,0];
+.\arena\intensify.js 
+module.exports = {
+  calPartCost: function(ts){ return []; },//ts是总的强化次数
+  calCarCost: function(ts){ return [];},
+  load:[//载重强化
+    [道具id, 增加的载重值],
+    ...
+  ],
+  costItems:[[加攻击的道具id，...], [加血量的道具id,...], [加载重的道具id,...]],
+}
+//不同道具的加成不同,记录道具id
+//
+配件存在
+属性可加成
+计算消耗
+AFSDFSDFASDF
