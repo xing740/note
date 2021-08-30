@@ -303,6 +303,50 @@ console.log(xxx);
 
 xxx = {};//xxx是变量，被const修饰，不能改
 ```
+
+34. this
+1. 在函数被调用时才会指定
+```
+let deck = {
+    suits: ["hearts", "spades", "clubs", "diamonds"],
+    cards: Array(52),
+    createCardPicker: function() {
+        return function() {
+            let pickedCard = Math.floor(Math.random() * 52);
+            let pickedSuit = Math.floor(pickedCard / 13);
+
+            return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+        }
+    }
+}
+
+let cardPicker = deck.createCardPicker();
+let pickedCard = cardPicker();//被调用时，this被设置成windom的，不是deck的
+
+alert("card: " + pickedCard.card + " of " + pickedCard.suit);
+```
+
+2.剪头函数可保存创建函数时的this,调用时不会再去捕获外部的this。
+```
+let deck = {
+    suits: ["hearts", "spades", "clubs", "diamonds"],
+    cards: Array(52),
+    createCardPicker: function() {
+        return () => { //此处使用剪头函数
+            let pickedCard = Math.floor(Math.random() * 52);
+            let pickedSuit = Math.floor(pickedCard / 13);
+
+            return {suit: this.suits[pickedSuit], card: pickedCard % 13};
+        }
+    }
+}
+let cardPicker = deck.createCardPicker();
+let pickedCard = cardPicker();
+
+alert("card: " + pickedCard.card + " of " + pickedCard.suit);
+```
+
+
 zcjilu
 
 #### 接口(implements是实现，extends是继承)
