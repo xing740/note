@@ -345,6 +345,13 @@ let pickedCard = cardPicker();
 
 alert("card: " + pickedCard.card + " of " + pickedCard.suit);
 ```
+35. 对象引用
+let x = p.arena().fight_data;//fight_data是{}类型
+
+p.arena().fight_data = {};//x和fight_data共用一个对象，这个操作不会影响x的数据，相当于将fight_data这边的引用置空
+p.arena().fight_data.pid = 1;
+
+
 
 
 zcjilu
@@ -2054,4 +2061,5 @@ module.exports = [[
 ]
 [
 
-u
+通过itemId移除
+通过Localid移除
