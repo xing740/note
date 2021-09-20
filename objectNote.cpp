@@ -1,7 +1,3 @@
-1.在c/c++中，为了避免同一个文件被include多次，有两种方式：一种是#ifndef方式，一种是#pragma once方式(在头文件的最开始加入)。 #pragma once方式产
-生于#ifndef之后。#ifndef方式受c/c++语言标准的支持，不受编译器的任何限制；而#pragma once方式有些编译器不支持(较老编译器不支持，如gcc 3.4版本之前
-  不支持#pragmaonce)，兼容性不够好。#ifndef可以针对一个文件中的部分代码，而#pragma once只能针对整个文件。
-
 4.::可为全局作用域符号：当全局变量在局部函数中与其中某个变量重名，那么就可以用::来区分如：
 例：
 char    zhou;    //全局变量   如果全局变量在包含的文件中，也可以这么用
@@ -221,6 +217,8 @@ int i = dist(engin);    返回0到3，分别表示数组中的下标
 使用tcp进行通信，需要建立连接，比如主机a上的进程a和主机b上的进程b进行通信，a、b之间的连接如何标示？使用四元组<a的ip，a所占用的端口，
 b的ip，b所占用的端口,ip:port就确定了一个socket，在一个tcp连接中，她就像一个插口，注意，叫做插口，套接字也就是类似的意思。你把应用程
 序插入到这个插座，就可以和连接的另外一方对话了。
+
+1. 不论是网卡间，还是路由间，应用间进行通信，肯定要提前定义好数据的格式和解析的方法，即各种协议。例舆层间有tcp,udp协议，应用层间有telent.http等。所以一条协议在发送端会在数据头加上各层的协议，接收时又数据头开始一层层的解 
 
 124.io_service，相当于一个线程分配中心，post函数是接收某个任务，调用线程去处理
 
@@ -708,6 +706,11 @@ std::move在提高 swap 函数的的性能上非常有帮助，一般来说，sw
        b = std::move(tmp);  // move tmp to b 
 }
 
+std::move() 实现原理：
+利用引用折叠原理将右值经过 T&& 传递类型保持不变还是右值，而左值经过 T&& 变为普通的左值引用，以保证模板可以传递任意实参，且保持类型不变；
+然后通过 remove_refrence 移除引用，得到具体的类型 T；
+最后通过 static_cast<> 进行强制类型转换，返回 T&& 右值引用。
+
 329.remvoe_reference 去掉引用，返回纯粹的类型,提交出来的类型的别名是成员变量type
 typedef int&& rval_int;
   std::remove_reference<int>::type;
@@ -754,18 +757,9 @@ int main(int argc, char* argv[]) argv[1] 是函数名，其后是参数
 一个程序的执行必须有main函数入口，且不能被其它函数调用，所以当需要参数时，不能在代码中取的，只能从外传入，因此main函数有参数
 exec不能看成只执行函数，它是执行可执行文件的
 
-349.std::map lower_bound下限。 排序小到大
-mp[2] = "a";                                                                                                                                                                       
-mp[4] = "b";                                                                                                                                                                       
-mp[6] = "c";                                                                                                                                                                       
-mp[8] = "d"; 
-mp.lower_bound[4].first == 3  //找出第一个>=3的
-mp.upper_bound[4].first == 5  //找出第一个 > 3的
-mp.lower_bound[5].first == 5
-mp.upper_bound[5].first == 5
-
-3 6  7
-
+349.lower_upper
+上限：小到大排列
+下限：大到小排序
 
 351
 epoll事件有两种模型：
@@ -819,12 +813,13 @@ epoll 因为采用 mmap的机制, 使得 内核socket buffer和 用户空间的 
 callback函数来处理 socket 数据时, 数据已经从内核层 "自动" 到了用户空间,
 
 359.开
-和mysql
 验证的用：mongo   /data/mongodb/mongodb_master 执行, ./auth_mongodb_start_master.py   
 没有验证的，例222机，在 /data/fytx2_test_p017a/mongodb/      python noauth_mongodb_start_master.py  (注意执行的文件不一样)
 
 mysql  /data/mysql/mysql_master, 执行./start_mysql_master.py 
 wiki   /data/game-wiki/xl_moin0.9.9/wikiserver.py       screen -S xxx
+
+登录服在自己服的:/data/lsfz_test_s001a/py_service   ./login_service.sh restart
 
 361. static
 全局：
@@ -941,10 +936,6 @@ TCP 类型隧道启动成功
 使用 [us-or-aws.sakurafrp.com:58174] 来连接到你的隧道
 或使用 IP 地址连接（不推荐）：[36.160.49.136:58173]
 
-400.
-2.异或
-记住 a^b^a = b;
-
 401:C++中输出数组数据分两类情况：
 当变量为字符型数组时，系统会将数组当作字符串来输出
 eg:
@@ -954,8 +945,9 @@ cout << str <<endl ;  //输出13
 当定义变量为非字符符数组时,系统会将数组名当作一个地址来输出，如：
 eg:
 int  a[11]={1,2,3};
-cout << a <<endl ;  //按17进制输出a的值（地址）    0012FF58
+cout << a <<endl ;  //按16进制输出a的值（地址）    0012FF58
 
+//read
 402.因为网络id和主机id的位数不固定，可能相互占用，所以出现了子网掩码
 
 403.时间复杂度，logn 以2为低数，n为真数，eg:n为4时，logn等于2,二分法就是logn
@@ -970,63 +962,11 @@ cout << a <<endl ;  //按17进制输出a的值（地址）    0012FF58
 O(1):O表示算法的时间性能, 1表示基本语句执行次数是一个常数，即用的时间是常数O(1),不会即着数据的增长而增长。
 
 skill:
-1.根据不同类型，执行不同的逻辑，我可能会在一个函数中实现，逻辑会很多很长，以下是构建类时，就确定了要执行的方法
-		class ActivityCCRank {
-		public:
-			ActivityCCRank(const int type) : Type(type) {
-				SGM = SINGLETONMUTEXPTRCREATE();
-				if (type == ActivityRankEnum::activity_battle_rank) {
-					_clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list_sp1, this);
-				}
-				else {
-					_clean_function = boost::bind(&ActivityCCRank::_impl_clean_rank_list, this);
-				}
-			}
-      private:
-      boost::function<void> _clean_function;
-      };
 
-2.利用一个数组保存对象和标记位对应的外部函数
-_subscribers[length] = child;
-_subscribers[length + FULFILLED] = onFulfillment;
-_subscribers[length + REJECTED] = onRejection
-
-3.根据类型进行某种操作时，可将类型以模板的形式传入
-
-eg:
-template <typename Service>
-asio::io_service::service* service_registry::create(
-    asio::io_service& owner)
-{
-  return new Service(owner);
-}
-
-4.如果锁需要在函数中进行操作，可当锁当参数传入
-mutex::scoped_lock lock(mutex_);
-  op_queue_.push(op);//放入任务队列，并唤醒一个线程进行处理
-  wake_one_thread_and_unlock(lock);
-
-5.保证某逻辑一定执行的方法
-struct task_io_service::work_finished_on_block_exit
-{
-  ~work_finished_on_block_exit()
-  {
-    task_io_service_->work_finished();
-  }
-  task_io_service* task_io_service_;
-};
-void func()
-{
-  work_finished_on_block_exit on_exit = { this };
-  (void)on_exit;//因为on_exit没用使用，加void避免警告
-  o->complete(*this);//相这里执行完成，一定调用work_finished函数，但某些错误可能会导致执行不到，
-  //work_finished_on_block_exit的方法保证了，只要不挂，就一样能执行到
-}
-      
 406.重载operator
 int x = 5;调用的是x的构造器，所以 class a < 5时;调用的是类a中的 bool operator < ();
 
-407. std::array 不会主动初始化
+407. std::array 不会自动初始化
 
 408. map.find()    
 iterator find (const key_type& k); //返回的是临时变量，不能用&
@@ -1034,7 +974,84 @@ const_iterator find (const key_type& k) const;//可以用引用
 好像用上面那个，可以直接修改val的值
 
 409 operator()
-1.直接使用对象时调用，eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
+1.直接使用对象时调用
+eg:if(a),就是使用a对象，if(a == b),如果没有operator==，会分别调用a,b的operator().
+
+410.拷备构造必须传引用
+A(const A& a);
+不是引用时，传参会发现拷备，会调用构造器，会发现拷备构造无限递归的情况
+
+411.构造顺序
+1.类对象的初始化顺序：基类构造函数–>派生类成员变量的构造函数–>自身构造函数
+2.基类构造函数的调用顺序与派生类的派生列表中的顺序有关；
+3.成员变量的初始化顺序与声明顺序有关；
+4.析构顺序和构造顺序相反。
+
+412.全局对象、静态对象、分配在栈区域内的对象，在编译阶段进行内存分配；存储在堆空间的对象，是在运行阶段进行内存分配。
+
+413.
+编译时多态：在程序编译过程中出现，发生在模板和函数重载中（泛型编程）。
+运行时多态：在程序运行过程中出现，发生在继承体系中，是指通过基类的指针或引用访问派生类中的虚函数。
+
+414.如何让类不能被继承
+template <typename T>
+class Base{
+    friend T;
+private://私有构造器
+    Base(){
+        cout << "base" << endl;
+    }
+    ~Base(){}
+};
+class B:virtual public Base<B>{   //一定注意 必须是虚继承  因为虚继承时，是最后一个派生类负责对虚基类的调用，此处的C不是Base的友元.如果不是虚继承，是B负责调用，所以
+public:                           //C还是能正常创建。
+    B(){
+        cout << "B" << endl;
+    }
+};//B可以单独构造，因为B是Base的友元
+class C:public B{
+public:
+    C(){}     // error: 'Base<T>::Base() [with T = B]' is private within this context
+};
+int main(){
+    B b;  
+    return 0;
+}
+
+415.空指针：
+若指针指向一块内存空间，当这块内存空间被释放后，该指针依然指向这块内存空间，此时，称该指针为“悬空指针”。
+
+416.nullptr 比 NULL 优势
+1.NULL是预定义变量，是一个宏,本质是0.
+2.nullptr 是指针类型，可以转换成任意的指针类型
+3.NULL可能在重载使用时有问题
+eg:
+void fun(char const *p)
+{
+    cout << "fun(char const *p)" << endl;
+}
+void fun(int tmp)
+{
+    cout << "fun(int tmp)" << endl;
+}
+int main()
+{
+    fun(nullptr); // fun(char const *p)
+    fun(NULL); // error: call of overloaded 'fun(NULL)' is ambiguous
+    return 0;
+}
+
+416.指针与引用的区别
+指针所指向的内存空间在程序运行过程中可以改变，而引用所绑定的对象一旦绑定就不能改变.
+指针本身在内存中占有内存空间，引用相当于变量的别名，在内存中不占内存空间。
+指针可以为空，但是引用必须绑定对象.
+指针可以有多级，但是引用只能一级。
+
+417.如何判断结构体是否相等？能否用 memcmp 函数判断结构体相等？
+1.需要重载操作符 == 判断两个结构体是否相等.
+2. memcmp 函数是逐个字节进行比较的，而结构体存在内存空间中保存时存在字节对齐，字节对齐时补的字节内容是随机的，会产生垃圾值，所以无法比较。
+
+利用运算符重载来实现结构体对象的比较：
 
 410 寻路.广度优先搜索
 0.一定能找到最快的路线
@@ -1105,8 +1122,7 @@ __end__:
   return paths;
 }
 ```
-5.17下
-410. classfinal()是调用eg:p->Escort()中去调用tofull()，此时会判断能否调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
+410. p->Escort()中去调用tofull()，此时会判断是否需要调用 classfinal,也就是说，有p->x()这个操作，才会调用classFinal()
 
 411.打印变量，得到变量对应的值，打印指针变量,得指针对应的值，即指针指向的地址。
 
@@ -1158,7 +1174,7 @@ int main(int argc, char *argv[])
 }
 
 静态成员函数
-指针中保存的也是一个相对地址(因为属于类),指针的声明和使用于普通函数一样
+指针中保存的也是一个相对地址(因为属于类),指针的声明和使用与普通函数一样
 class Test
 {
 public:
@@ -1175,7 +1191,7 @@ int main(int argc, char *argv[])
     //直接调用
     pFunc();//Test::print
     (*pFunc)();//Test::print
-    Test test;
+    Test test;//不能通过对象或对象指针调用
     //(test.*pFunc)();//error
     Test* pTest = &test;
     //(pTest->*pFunc)();//error
@@ -1194,9 +1210,10 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程
 415.战斗
 不管是创建玩家还是npc战斗对象，都是是armyside类，其它的武将也都是army
 位置：[x坐标，y坐标，朝向]
-进攻点不同，也就是出生点不同
+进攻点不同,也就是出生点不同
 
 416.
+//注意连接两字
 动态链接：链接时不会将用到的库连接到可执行文件中，只在运行时才会链接,启动时如果缺少库，系统会终止程序
 节省内存、更新方便，但在运行时每次都要链接库，有一定的性能损失
 静态链接：链接时会把所以用到的.o文件链接到最终的可执行文件中
@@ -1217,10 +1234,10 @@ int pthread_cond_wait(pthread_cond_t *cond, pthread_mutex_t *mutex); //使线程
 char x[20] = "hello";
 sizeof(x) // 等于20
 void fun(char x[]) {
-  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针.难怪一般的c函数，如果传的是数组，都要先算出数组长度再传入
+  sizeof(x) // 等于指针大小,因为c类型的数组做为形参时，是传入的组数的首地址，所以此处的x是字符指针.所以c函数，如果传的是数组，还要传入数组长度
 }
 ```
-* strlen 计算字符串的实现长度，参数必须为char* 类型
+* strlen 计算字符串的长度，参数必须为char* 类型
 
 420.define 和 const区别
 define：在预处理阶段处理，不会进行数据检查，代码中有多少处使用就有多少替换，占用了代码段空间。不能进行调试(不能断点在define定义处，替换处也看不到替换后的代码)
@@ -1256,24 +1273,51 @@ C++:因为有bool 类型 sizeof（1 == 1） == sizeof（true） 按照bool类型
 
 429.编译器根据初始值来推算变量的类型，要求用 auto 定义变量时必须有初始值。编译器推断出来的 auto 类型有时和初始值类型并不完全一样，编译器会适当改变结果类型使其更符合初始化规则。
 
-430.析构函数一般定义成虚函数
-析构函数定义成虚函数是为了防止内存泄漏，因为当基类的指针指定到派生类的对象时，如果未将基类的析构函数定义成虚函数，会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。
+430.析构函数定义成虚函数原因：
+当基类的指针或者引用指向或绑定到派生类的对象时，如果未将基类的析构函数定义成虚函数，会调用基类的析构函数，那么只能将基类的成员所占的空间释放掉，派生类中特有的就会无法释放内存空间导致内存泄漏。
+
+431.如果gg没有连世界服，会每一分钟去后台请求世界服信息。gg的世界服信息是主动去台后请求的
+
+432.缓冲区
+缓冲区就是一块内存区，它用在输入输出设备和CPU之间，用来存储数据。它使得低速的输入输出设备和高速的CPU能够协调工作，避免低速的输入输出设备占用CPU，解放出CPU，使其能够高效率工作。
+作用:1.可以解除两者的制约关系，数据可以直接送往缓冲区，高速设备不用再等待低速设备，提高了计算机的效率
+2. 可以减少数据的读写次数，如果每次数据只传输一点数据，就需要传送很多次
 
 jilu
-1.引用作为递归参数，为什么可以多次引用 
 
-
-x + y Vjj
--2 1 2 3
-1 2 -10 3 4 
-
-void fun(int x[]) {
-  curSum = 0, maxSum = curSum;
-  for(auto i = 0; i < length; ++i) {
-      curSum = curSum + x[i] > x[i] ? curSum + x[i] : x[i];
-      c
+432.计算机通过第一个字段判断一个单位编码占用的字节数
+第一位为0时，为单字节
+前三位为110时，为双字节
+前四位为1110时，为三字节
+前五位为11110时，为四字节
+前六位为111110时，为五字节
+前七位为1111110时，为六字节
+```
+所以分别取出第一到第七位进行判断
+size_t word_len(const char* words, size_t max_len) {
+  const auto v = *words;
+  size_t leg = 1;
+  if ((v & 0xe0) == 0xc0) {
+    leg = 2;
   }
+  else if ((v & 0xf0) == 0xe0) {
+    leg = 3;
+  }
+  else if ((v & 0xf8) == 0xf0) {
+    leg = 4;
+  }
+  else if ((v & 0xfc) == 0xf8) {
+    leg = 5;
+  }
+  else if ((v & 0xfe) == 0xfc) {
+    leg = 6;
+  }
+  return (std::min)(leg, max_len);
 }
+	
+```
+
+1.引用作为递归参数，为什么可以多次引用 
 
 
 
@@ -1771,16 +1815,6 @@ vptr是虚函数表的指针，虚函数表指针也会经过 mangled（倾压),
 2是normalize在表中的索引值
 ptr是this指针
 
-19.成员函数指针
-2.普通函数指针，只需确定返回值和参数类型，就能指向某一类函数。格式：返回值类型 (* 指针名，可随便取)(参数类型,...)  例：int (*pf)(int a)
-3.取一个nonstatic member function的地址，且是非虚函数，得到的是它在内存的真正地址，然而这个值是不完全的，它需要被绑定于某个class object的地址上。
-格式：
-double       返回值类型
-(Point::*    标识是成员函数
-  pmf)       指针的名字
-  ();        参数
-
-20.一个对象在构造函数执行完之前，它并不是一个完整的对象
 
 makefile
 2. make xx.c  可编译.c文件
@@ -3024,3 +3058,61 @@ if (this_one_thing > this_other_thing &&
 限时点将：摇钱树  
 佳人:点将
 秘境：自定义充值
+
+
+
+1.cfg  obo, true,以开启时间为准，没有到才能用。false，以结束时间为准，没有结束才能用
+2.mng.cpp 300
+3.单服且没玩过，用os_time_list
+4.is_init，如果当前的定时结束时间没结束，用当前时间周期
+5.Open(true)/使用tow_way摘取gg数据
+6.布防开始匹配对手
+7.布防死时换位.死亡的玩家初始位置与当前死亡玩家位置互换
+8.第一阶段只能布防不能打，其它阶段能布阵也能打，新阶段时重设布防
+9.mng.cpp 会大于开始时间，或大于结束时间
+10.每个阶段结束时，才判断大船是否还在，无大船则败
+11.DBLOG::strLogCbzf 104 103 可查实际发的排行奖励
+12.船败:打完玩家血量后，还要打船部分血量
+13.先填所有船的主将位，再填小兵位。若有剩下的武将,可在布防处替换上阵
+14.布防时，站位gas会检查，血量也是用服务器的，也会检查玩家id，应该是只用了玩家id，
+15.每三天会重取军团数据，参加的军团id不变
+16.state是什么，就表示已经执行了什么状态
+17.参赛军团有多余，抽取一个军团复制做为npc军团对手
+18.决战书道具，相当于使用道具进攻，只是不显示战斗过程，可跳过小船打大船
+19.des减少  is_join:非中途加入的玩家
+20.LegionActCbzf::checkLgEf()处理死亡
+21.给gac下届的信息
+         ptr->set_event_id(Inter::event_legion_act_cbzf)                              
+             ->set_run_delay_time(1)                                                  
+             ->start(QTimerFunctionBindWithName(boostBind(LegionActCbzf::sendStatInfo,
+  this, -2)))                                                                         
+             ;  
+            
+22.哪方败，减哪方的兵力
+
+
+
+
+扫荡
+req:{id:关卡id, times:次数}
+resp{ rw:[] }
+
+配件强化：
+0.1.2
+[0,0,0];
+.\arena\intensify.js 
+module.exports = {
+  calPartCost: function(ts){ return []; },//ts是总的强化次数
+  calCarCost: function(ts){ return [];},
+  load:[//载重强化
+    [道具id, 增加的载重值],
+    ...
+  ],
+  costItems:[[加攻击的道具id，...], [加血量的道具id,...], [加载重的道具id,...]],
+}
+//不同道具的加成不同,记录道具id
+//
+配件存在
+属性可加成
+计算消耗
+AFSDFSDFASDF
