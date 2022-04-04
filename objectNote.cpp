@@ -3121,3 +3121,54 @@ AFSDFSDFASDF
 1.char pa[15]; pa = "sdfasf";   c没有提供可以直接操作字符串的运算符，用strcpy或strcat
 2.WaitForSingleObject在等待的过程中会进入一个非常高效的沉睡等待状态，只占用极少的CPU时间片。
 3.计算机电路先处理低位字节，效率比较高，因为计算都是从低位开始的。所以，计算机的内部处理都是小端字节序。但是，人类还是习惯读写大端字节序。所以，除了计算机的内部处理，其他的场合比如网络传输和文件储存，几乎都是用的大端字节序。正是因为这些原因才有了字节序。
+4.vs2019 动态库生成与使用
+https://blog.csdn.net/modi000/article/details/121786676?spm=1001.2101.3001.6650.6&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&utm_relevant_index=8
+生成编译好的文件，供其它程序引入调用
+1.动态库头文件的作用是声明需要导出的函数接口  __declspec(dllexport)，此修饰符告诉编译器和链接器被它修饰的函数或变量需要从DLL导出，以供其他应用程序使用
+2.复制dll和lib到工程的目录下。
+3.包含含有库信息的头文件 extern "C" __declspec(dllimport) void SayHello();，作用是告诉编译器和链接器被__declspec(dllimport)修饰的函数或变量需要从DLL导入
+4. 链接器中的附加依赖项要加  xx.lib
+5. .cpp文件中就能使用 SayHello 了
+6. 如果想执行编成的exe文件， *.dll 要复制到exe的目录下1
+
+5.Util是utiliy的缩写，是一个多功能、基于工具的包。
+
+适配第三方接口原因:
+1.调用api时，要传入某种结构数据，这就需要地方构建,所以可定义一个类，其中有同名函数，函数中构建好后，再调用api的同名
+函数传入数据，我方函数传入的参数也是有结构的，所以就又多了一个我方数据结构,又因为同名函数可能有很多地方需要，所以就提出来生成抽象类
+注:我方的函数只是和api的函数名字相同，参数类型是不同的
+eg:
+class CCtpMdApi : public CStgMdApi //CStgMdApi是抽像基类
+{
+
+};
+
+int CCtpMdApi::ReqUserLogout(CStgUserLogoutField* pUserLogout(/*我方数据结构*/)), int nRequestID)
+{
+	///用户登出请求
+	CThostFtdcUserLogoutField apiField; //api数据结构
+	memset(&apiField, 0, sizeof(apiField));
+	m_pApi->ReqUserLogout(&apiField, nRequestID);
+}
+
+2.spi 可能spi实现的功能并不统一，所以由调用者传入决定。我方是定义一个非STG类继承spi，按官方传入，再对回返的数据适配
+成我方格式后再调用我方spi，我方的这个spi的基类是class CStgMdSpi,基类内是非纯虚函数
+eg:
+class CCtpMdSpi : public CThostFtdcMdSpi
+{
+
+}
+
+void CCtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
+{
+	///用户登录应答
+	CStgRspUserLoginField spiField;
+  spiField.SessionID = pRspUserLogin->SessionID;
+
+	///响应信息
+	CStgRspInfoField rspInfo;
+
+	m_pSpi->OnRspUserLogin(&spiField, &rspInfo, nRequestID, bIsLast);
+}//m_pSpi 应该是从 CStgMdSpi派生的类
+
+
