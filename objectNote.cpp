@@ -3130,6 +3130,19 @@ https://blog.csdn.net/modi000/article/details/121786676?spm=1001.2101.3001.6650.
 4. 链接器中的附加依赖项要加  xx.lib
 5. .cpp文件中就能使用 SayHello 了
 6. 如果想执行编成的exe文件， *.dll 要复制到exe的目录下1
+7.signed,unsigned,long和short都隐含了int，所以等价于 signed int,unsigned int,long int,short int
+
+条件编译
+判断系统时,编译器会自动定义一个宏，或makefile加上参数
+eg:
+在源代码里面如果这样是定义的：
+#ifdef   MACRONAME
+//可选代码
+#endif
+
+那在makefile里面
+gcc   -D   MACRONAME=MACRODEF
+
 
 5.Util是utiliy的缩写，是一个多功能、基于工具的包。
 
@@ -3150,8 +3163,9 @@ int CCtpMdApi::ReqUserLogout(CStgUserLogoutField* pUserLogout(/*我方数据结�
 	memset(&apiField, 0, sizeof(apiField));
 	m_pApi->ReqUserLogout(&apiField, nRequestID);
 }
+2. 这么多全柜台，希望通过一个接口能调用所有第三方的api和适配所有第三方的spi
 
-2.spi 可能spi实现的功能并不统一，所以由调用者传入决定。我方是定义一个非STG类继承spi，按官方传入，再对回返的数据适配
+3.spi 可能spi实现的功能并不统一，所以由调用者传入决定。我方是定义一个非STG类继承spi，按官方传入，再对回返的数据适配
 成我方格式后再调用我方spi，我方的这个spi的基类是class CStgMdSpi,基类内是非纯虚函数
 eg:
 class CCtpMdSpi : public CThostFtdcMdSpi
@@ -3159,10 +3173,11 @@ class CCtpMdSpi : public CThostFtdcMdSpi
 
 }
 
+
 void CCtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThostFtdcRspInfoField* pRspInfo, int nRequestID, bool bIsLast)
 {
 	///用户登录应答
-	CStgRspUserLoginField spiField;
+	  CStgRspUserLoginField spiField;
   spiField.SessionID = pRspUserLogin->SessionID;
 
 	///响应信息
@@ -3172,3 +3187,17 @@ void CCtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThos
 }//m_pSpi 应该是从 CStgMdSpi派生的类
 
 
+?
+SL_Market  盛立极速行情柜台插件  怎么api的请求，没有调用api发出，直接调用了spi的回调，交易那边也没有sl_market的代码
+MDP_Market 也是，可能是市场api没有提供那个功能，为了统一，就直接调用了spi的回调
+
+1.为什么有些没有api
+
+2.深度中的 业务日期
+
+3. 深度中的上带价 下带价   datafeedmdspi.cpp  242
+
+4. 为什么有些只封装spi， 不封装api
+
+?
+1.数组
