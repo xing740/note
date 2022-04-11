@@ -3131,6 +3131,8 @@ https://blog.csdn.net/modi000/article/details/121786676?spm=1001.2101.3001.6650.
 5. .cpp文件中就能使用 SayHello 了
 6. 如果想执行编成的exe文件， *.dll 要复制到exe的目录下1
 7.signed,unsigned,long和short都隐含了int，所以等价于 signed int,unsigned int,long int,short int
+8. 广播是指将报文发送到网络中的所有可能的接收者。
+9. 为了减少在广播中涉及的不必要的开销，可以只向特定的一部分接收方（可以是域内也可以是域间）发送流量，这被称为组播。
 
 条件编译
 判断系统时,编译器会自动定义一个宏，或makefile加上参数
@@ -3188,16 +3190,18 @@ void CCtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThos
 
 
 ?
-SL_Market  盛立极速行情柜台插件  怎么api的请求，没有调用api发出，直接调用了spi的回调，交易那边也没有sl_market的代码
-MDP_Market 也是，可能是市场api没有提供那个功能，为了统一，就直接调用了spi的回调
 
-1.为什么有些没有api
 
-2.深度中的 业务日期
 
-3. 深度中的上带价 下带价   datafeedmdspi.cpp  242
 
-4. 为什么有些只封装spi， 不封装api
+9. XQN行情加速器  SIMdSpi.h 59 XQN 接收到组播数据的回调事件  ,是要装它的设备, 就能接收到？
+
+?
+1.是不是因为每天结算，所以算历史盈亏时，用的一个参数是昨日结算价
 
 ?
 1.数组
+
+
+
+922 911
