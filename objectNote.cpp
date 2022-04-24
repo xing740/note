@@ -3220,7 +3220,8 @@ unicode
 
 ???
 1. curl
- curl http://127.0.0.1:8088/sysmgmt?action=linkavl
+ curl http://127.0.0.1:8089/sysmgmt?action=qrysysstate
+ curl http://192.168.0.5:8089/sysmgmt?action=qrysysstate
  启用、禁用线路
  curl http://127.0.0.1:8088/sysmgmt?action=linkavl -X POST -d "{\"data\":{\"type\":\"trade\",\"lineid\":\"1\",\"available\":\"enable\"}}"
 
