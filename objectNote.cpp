@@ -3121,15 +3121,6 @@ AFSDFSDFASDF
 1.char pa[15]; pa = "sdfasf";   c没有提供可以直接操作字符串的运算符，用strcpy或strcat
 2.WaitForSingleObject在等待的过程中会进入一个非常高效的沉睡等待状态，只占用极少的CPU时间片。
 3.计算机电路先处理低位字节，效率比较高，因为计算都是从低位开始的。所以，计算机的内部处理都是小端字节序。但是，人类还是习惯读写大端字节序。所以，除了计算机的内部处理，其他的场合比如网络传输和文件储存，几乎都是用的大端字节序。正是因为这些原因才有了字节序。
-4.vs2019 动态库生成与使用
-https://blog.csdn.net/modi000/article/details/121786676?spm=1001.2101.3001.6650.6&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&utm_relevant_index=8
-生成编译好的文件，供、它程序引入调用
-1.动态库头文件的作用是声明需要导出的函数接口  __declspec(dllexport)，此修饰符告诉编译器和链接器被它修饰的函数或变量需要从DLL导出，以供其他应用程序使用
-2.复制dll和lib到工程的目录下。
-3.包含含有库信息的头文件 extern "C" __declspec(dllimport) void SayHello();，作用是告诉编译器和链接器被__declspec(dllimport)修饰的函数或变量需要从DLL导入
-4. 链接器中的附加依赖项要加  xx.lib
-5. .cpp文件中就能使用 SayHello 了
-6. 如果想执行编成的exe文件， *.dll 要复制到exe的目录下1
 7.signed,unsigned,long和short都隐含了int，所以等价于 signed int,unsigned int,long int,short int
 8. 广播是指将报文发送到网络中的所有可能的接收者。
 9. 为了减少在广播中涉及的不必要的开销，可以只向特定的一部分接收方（可以是域内也可以是域间）发送流量，这被称为组播。
@@ -3207,7 +3198,25 @@ void CCtpMdSpi::OnRspUserLogin(CThostFtdcRspUserLoginField* pRspUserLogin, CThos
 922 911
 
 
-vs2019  如果lib的地址改了，要重打开vs2019才重新加载环境变量地址，vs2019看库的环境 变量值，在命令行
+vs2019 
+1. 如果lib的地址改了，要重打开vs2019才重新加载环境变量地址，vs2019看库的环境 变量值，在命令行
+4.vs2019 动态库生成与使用
+https://blog.csdn.net/modi000/article/details/121786676?spm=1001.2101.3001.6650.6&utm_medium=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&depth_1-utm_source=distribute.pc_relevant.none-task-blog-2%7Edefault%7EBlogCommendFromBaidu%7ERate-6.pc_relevant_antiscanv2&utm_relevant_index=8
+生成编译好的文件，供、它程序引入调用
+1.动态库头文件的作用是声明需要导出的函数接口  __declspec(dllexport)，此修饰符告诉编译器和链接器被它修饰的函数或变量需要从DLL导出，以供其他应用程序使用
+2.复制dll和lib到工程的目录下。
+3.包含含有库信息的头文件 extern "C" __declspec(dllimport) void SayHello();，作用是告诉编译器和链接器被__declspec(dllimport)修饰的函数或变量需要从DLL导入
+4. 链接器中的附加依赖项要加  xx.lib
+5. .cpp文件中就能使用 SayHello 了
+6. 如果想执行编成的exe文件， *.dll 要复制到exe的目录下1
+
+附加库目录:添加文件引用的lib静态库存放的目录
+附加依赖项:添加工程引用的lib文件名
+dll动态库的使用是直接复制dll到exe所在的目录
+
+编译有报库错误(无法解析的外部符号)：
+0. 找到报错相关函数所在的文件所在的dll或lib
+1. 要看dll是否为最新，是否放到了exe目录，附加库目录有没有加，且附加依赖项有没有对应附加库目录
 
 
 
